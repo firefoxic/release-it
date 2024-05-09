@@ -1,0 +1,53 @@
+{
+	"name": "@firefoxic/update-changelog",
+	"description": "CLI utility for automatic update of CHANGELOG.md",
+	"version": "0.0.1",
+	"license": "MIT",
+	"author": {
+		"name": "Sergey Artemov",
+		"email": "firefoxic.dev@gmail.com"
+	},
+	"homepage": "https://github.com/firefoxic/update-changelog#readme",
+	"bugs": {
+		"url": "https://github.com/firefoxic/update-changelog/issues"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git://github.com/firefoxic/update-changelog.git"
+	},
+	"type": "module",
+	"exports": "./lib/index.js",
+	"files": [
+		"./lib/"
+	],
+	"bin": {
+		"update-changelog": "./bin/cli.js"
+	},
+	"engines": {
+		"node": "^18.12 || >=20.9"
+	},
+	"packageManager": "pnpm@9.1.0",
+	"scripts": {
+		"prepare": "husky",
+		"preversion": "pnpm test",
+		"version": "./bin/cli.js && git add CHANGELOG.md",
+		"postversion": "pnpm publish --access=public",
+		"postpublish": "git push --follow-tags",
+		"lint": "eslint",
+		"test": "node --test",
+		"pretest": "pnpm lint"
+	},
+	"devDependencies": {
+		"@firefoxic/eslint-config": "^1.0.0",
+		"eslint": "^9.2.0",
+		"husky": "^9.0.11"
+	},
+	"keywords": [
+		"changelog",
+		"cli",
+		"javascript",
+		"node.js",
+		"prepare",
+		"update"
+	]
+}
