@@ -26,7 +26,7 @@ In the `scripts` section of your `package.json`, add a `version` hook that w
 ```json
 {
 	"scripts": {
-		"version": "update-changelog && git add CHANGELOG.md".
+		"version": "update-changelog && git add CHANGELOG.md"
 	},
 }
 ```
@@ -46,9 +46,13 @@ The `update-changelog` expects the following:
 	[Unreleased]: https://github.com/<user-name>/<project-name>/compare/v0.0.1...HEAD
 	```
 
+	**Example:** [the state of this project's changelog](https://github.com/firefoxic/update-changelog/commit/37b9102f8673fedae2cdeaf9e44f027360617cea#diff-06572a96a58dc510037d5efa622f9bec8519bc1beab13c9f251e97e657a9d4edR7-R14) before the first release.
+
 ## Usage
 
-When publishing a new version, simply do not create the `Prepare release` commit. Running `pnpm version patch` (or `minor`, or `major`) will now do everything for you 🥳
+When publishing a new version, simply do not create the `Prepare release` commit.
+
+Running `pnpm version patch` (or `minor`, or `major`) [will now do everything for you](https://github.com/firefoxic/update-changelog/commit/0eeb45ba1883f1d31845100631243ce2a1139f11) 🥳
 
 [license-url]: https://github.com/firefoxic/update-changelog/blob/main/LICENSE.md
 [license-image]: https://img.shields.io/badge/License-MIT-limegreen.svg
