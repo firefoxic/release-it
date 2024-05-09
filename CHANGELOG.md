@@ -7,8 +7,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com), and 
 
 ## [Unreleased]
 
+## [0.1.0] — 2024–05–09
+
 ### Added
 
 - The basic functionality of the `update-changelog` CLI utility.
 
-[Unreleased]: https://github.com/firefoxic/update-changelog/compare/v0.0.1...HEAD
+[Unreleased]: https://github.com/firefoxic/update-changelog/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/firefoxic/update-changelog/releases/tag/v0.1.0
