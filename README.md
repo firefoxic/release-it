@@ -26,7 +26,7 @@ In the `scripts` section of your `package.json`, add a `version` hook that w
 ```json
 {
 	"scripts": {
-		"version": "update-changelog && git add CHANGELOG.md"
+		"version": "update-changelog"
 	},
 }
 ```

@@ -30,7 +30,7 @@
 	"scripts": {
 		"prepare": "husky",
 		"preversion": "pnpm test",
-		"version": "./bin/cli.js && git add CHANGELOG.md",
+		"version": "./bin/cli.js",
 		"postversion": "pnpm publish --access=public",
 		"postpublish": "git push --follow-tags",
 		"lint": "eslint",
