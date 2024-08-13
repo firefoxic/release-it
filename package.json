@@ -31,7 +31,7 @@
 		"prepare": "husky",
 		"preversion": "pnpm test",
 		"version": "./bin/cli.js",
-		"postversion": "if [ \"$CI\" != \"true\" ]; then pnpm publish --access public; fi",
+		"postversion": "pnpm publish --provenance --access public --no-git-checks",
 		"postpublish": "git push --follow-tags",
 		"lint": "eslint",
 		"test": "node --test",
