@@ -28,7 +28,7 @@
 	},
 	"packageManager": "pnpm@9.7.1",
 	"scripts": {
-		"prepare": "husky",
+		"prepare": "git config core.hooksPath .git-hooks || echo 'Not in a git repo'",
 		"preversion": "pnpm test",
 		"version": "./bin/cli.js",
 		"postversion": "pnpm publish --provenance --access public --no-git-checks",
@@ -39,8 +39,7 @@
 	},
 	"devDependencies": {
 		"@firefoxic/eslint-config": "^3.0.0",
-		"eslint": "^9.9.0",
-		"husky": "^9.1.4"
+		"eslint": "^9.9.0"
 	},
 	"keywords": [
 		"changelog",
