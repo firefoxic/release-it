@@ -26,7 +26,7 @@
 	"engines": {
 		"node": "^18.12 || >=20.9"
 	},
-	"packageManager": "pnpm@9.6.0",
+	"packageManager": "pnpm@9.7.1",
 	"scripts": {
 		"prepare": "husky",
 		"preversion": "pnpm test",
@@ -38,8 +38,8 @@
 		"pretest": "pnpm lint"
 	},
 	"devDependencies": {
-		"@firefoxic/eslint-config": "^2.0.0",
-		"eslint": "^9.8.0",
+		"@firefoxic/eslint-config": "^3.0.0",
+		"eslint": "^9.9.0",
 		"husky": "^9.1.4"
 	},
 	"keywords": [
