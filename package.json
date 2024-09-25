@@ -1,7 +1,7 @@
 {
 	"name": "@firefoxic/update-changelog",
 	"description": "CLI utility for automatic update of CHANGELOG.md",
-	"version": "0.2.0",
+	"version": "0.2.1",
 	"license": "MIT",
 	"author": {
 		"name": "Sergey Artemov",
