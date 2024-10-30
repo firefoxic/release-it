@@ -7,6 +7,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com), and 
 
 ## [Unreleased]
 
+## [1.0.0] — 2024–10–30
+
 ### Changed
 
 - The minimum required `node.js` version has been increased to `20.12.0`, except for version `21`.
@@ -29,7 +31,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com), and 
 
 - The basic functionality of the `update-changelog` CLI utility.
 
-[Unreleased]: https://github.com/firefoxic/update-changelog/compare/v0.2.1...HEAD
+[Unreleased]: https://github.com/firefoxic/update-changelog/compare/v1.0.0...HEAD
+[1.0.0]: https://github.com/firefoxic/update-changelog/compare/v0.2.1...v1.0.0
 [0.2.1]: https://github.com/firefoxic/update-changelog/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/firefoxic/update-changelog/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/firefoxic/update-changelog/releases/tag/v0.1.0
