@@ -24,11 +24,11 @@
 		"update-changelog": "./bin/cli.js"
 	},
 	"engines": {
-		"node": "^18.12 || >=20.9"
+		"node": "^20.12 || >=22.11"
 	},
-	"packageManager": "pnpm@9.7.1",
+	"packageManager": "pnpm@9.12.3",
 	"scripts": {
-		"prepare": "git config core.hooksPath .git-hooks || echo 'Not in a git repo'",
+		"prepare": "git config core.hooksPath .git-hooks || true",
 		"preversion": "pnpm test",
 		"version": "./bin/cli.js",
 		"postversion": "pnpm publish --provenance --access public --no-git-checks",
@@ -38,8 +38,8 @@
 		"pretest": "pnpm lint"
 	},
 	"devDependencies": {
-		"@firefoxic/eslint-config": "^3.0.0",
-		"eslint": "^9.9.0"
+		"@firefoxic/eslint-config": "^4.0.0",
+		"eslint": "^9.13.0"
 	},
 	"keywords": [
 		"changelog",
