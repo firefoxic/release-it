@@ -7,6 +7,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com), and 
 
 ## [Unreleased]
 
+### Changed
+
+- The `update-changelog` command should now be called not in the `version` script of the package.json file, but immediately after the `pnpm version <release_type>` command.
+
+### Added
+
+- The project has been rewritten in `bash` and now does not depend on node.js or npm packages.
+
 ## [1.0.0] — 2024–10–30
 
 ### Changed

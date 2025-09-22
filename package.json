@@ -15,37 +15,14 @@
 		"type": "git",
 		"url": "git://github.com/firefoxic/update-changelog.git"
 	},
-	"type": "module",
-	"exports": "./lib/index.js",
-	"files": [
-		"./lib/"
-	],
+	"exports": null,
+	"files": [],
 	"bin": {
-		"update-changelog": "./bin/cli.js"
-	},
-	"engines": {
-		"node": "^20.12 || >=22.11"
-	},
-	"packageManager": "pnpm@9.12.3",
-	"scripts": {
-		"prepare": "git config core.hooksPath .git-hooks || true",
-		"preversion": "pnpm test",
-		"version": "./bin/cli.js",
-		"postversion": "pnpm publish --provenance --access public --no-git-checks",
-		"postpublish": "git push --follow-tags",
-		"lint": "eslint",
-		"test": "node --test",
-		"pretest": "pnpm lint"
-	},
-	"devDependencies": {
-		"@firefoxic/eslint-config": "^4.0.0",
-		"eslint": "^9.13.0"
+		"update-changelog": "./update-changelog.sh"
 	},
 	"keywords": [
 		"changelog",
 		"cli",
-		"javascript",
-		"node.js",
 		"prepare",
 		"update"
 	]

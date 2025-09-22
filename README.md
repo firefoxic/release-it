@@ -19,19 +19,13 @@ The `update-changelog` utility gets rid of this chore, random typos, and an 
 pnpm add -D @firefoxic/update-changelog
 ```
 
-## Configuration
+## Usage
 
-In the `scripts` section of your `package.json`, add a `version` hook that will run when `pnpm version patch` (or `minor`, or `major`) is executed after updating the version in `package.json`, but before creating the commit.
+When creating a new version, simply do not create the `Prepare release` commit. Just run `update-changelog` directly after the `pnpm version <release_type>` command.
 
-```json
-{
-	"scripts": {
-		"version": "update-changelog"
-	},
-}
-```
+You may use it in your CI pipeline (see `.github/workflows/release.yaml` of this project for an example).
 
-Optionally, other hooks can be added to conveniently automate package publishing (see `package.json` of this project for an example).
+You can use it in your CI pipeline. See the [`release.yaml`](https://github.com/firefoxic/update-changelog/blob/main/.github/workflows/release.yaml) file for an example.
 
 ## Some restrictions
 
@@ -47,12 +41,6 @@ The `update-changelog` expects the following:
 	```
 
 	**Example:** [the state of this project's changelog](https://github.com/firefoxic/update-changelog/commit/37b9102f8673fedae2cdeaf9e44f027360617cea#diff-06572a96a58dc510037d5efa622f9bec8519bc1beab13c9f251e97e657a9d4edR7-R14) before the first release.
-
-## Usage
-
-When publishing a new version, simply do not create the `Prepare release` commit.
-
-Running `pnpm version patch` (or `minor`, or `major`) [will now do everything for you](https://github.com/firefoxic/update-changelog/commit/0eeb45ba1883f1d31845100631243ce2a1139f11) 🥳
 
 [license-url]: https://github.com/firefoxic/update-changelog/blob/main/LICENSE.md
 [license-image]: https://img.shields.io/badge/License-MIT-limegreen.svg
