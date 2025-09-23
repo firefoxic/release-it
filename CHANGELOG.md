@@ -7,6 +7,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com), and 
 
 ## [Unreleased]
 
+## [2.0.1] — 2025–09–23
+
 ### Fixed
 
 - The description in the README.md file has now been corrected.
@@ -45,7 +47,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com), and 
 
 - The basic functionality of the `update-changelog` CLI utility.
 
-[Unreleased]: https://github.com/firefoxic/update-changelog/compare/v2.0.0...HEAD
+[Unreleased]: https://github.com/firefoxic/update-changelog/compare/v2.0.1...HEAD
+[2.0.1]: https://github.com/firefoxic/update-changelog/compare/v2.0.0...v2.0.1
 [2.0.0]: https://github.com/firefoxic/update-changelog/compare/v1.0.0...v2.0.0
 [1.0.0]: https://github.com/firefoxic/update-changelog/compare/v0.2.1...v1.0.0
 [0.2.1]: https://github.com/firefoxic/update-changelog/compare/v0.2.0...v0.2.1
