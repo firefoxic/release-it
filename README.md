@@ -23,8 +23,6 @@ pnpm add -D @firefoxic/update-changelog
 
 When creating a new version, simply do not create the `Prepare release` commit. Just run `update-changelog` directly after the `pnpm version <release_type>` command.
 
-You may use it in your CI pipeline (see `.github/workflows/release.yaml` of this project for an example).
-
 You can use it in your CI pipeline. See the [`release.yaml`](https://github.com/firefoxic/update-changelog/blob/main/.github/workflows/release.yaml) file for an example.
 
 ## Some restrictions

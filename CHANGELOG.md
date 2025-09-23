@@ -7,6 +7,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com), and 
 
 ## [Unreleased]
 
+### Fixed
+
+- The description in the README.md file has now been corrected.
+
 ## [2.0.0] — 2025–09–23
 
 ### Changed
