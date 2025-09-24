@@ -7,6 +7,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com), and 
 
 ## [Unreleased]
 
+### Fixed
+
+- URLs for links are now generated correctly.
+
 ## [2.0.1] — 2025–09–23
 
 ### Fixed
