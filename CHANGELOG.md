@@ -7,6 +7,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com), and 
 
 ## [Unreleased]
 
+## [3.0.0] — 2025–09–24
+
 ### Changed
 
 - The project has been renamed to `@firefoxic/release-it`.
@@ -66,7 +68,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com), and 
 
 - The basic functionality of the `update-changelog` CLI utility.
 
-[Unreleased]: https://github.com/firefoxic/release-it/compare/v2.0.2...HEAD
+[Unreleased]: https://github.com/firefoxic/release-it/compare/v3.0.0...HEAD
+[3.0.0]: https://github.com/firefoxic/release-it/compare/v2.0.2...v3.0.0
 [2.0.2]: https://github.com/firefoxic/release-it/compare/v2.0.1...v2.0.2
 [2.0.1]: https://github.com/firefoxic/release-it/compare/v2.0.0...v2.0.1
 [2.0.0]: https://github.com/firefoxic/release-it/compare/v1.0.0...v2.0.0
