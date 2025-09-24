@@ -1,29 +1,34 @@
 {
-	"name": "@firefoxic/update-changelog",
-	"description": "CLI utility for automatic update of CHANGELOG.md",
+	"name": "@firefoxic/release-it",
+	"description": "Bump, publish and release new version for npm package",
 	"version": "2.0.2",
 	"license": "MIT",
 	"author": {
 		"name": "Sergey Artemov",
 		"email": "firefoxic.dev@gmail.com"
 	},
-	"homepage": "https://github.com/firefoxic/update-changelog#readme",
+	"homepage": "https://github.com/firefoxic/release-it#readme",
 	"bugs": {
-		"url": "https://github.com/firefoxic/update-changelog/issues"
+		"url": "https://github.com/firefoxic/release-it/issues"
 	},
 	"repository": {
 		"type": "git",
-		"url": "git://github.com/firefoxic/update-changelog.git"
+		"url": "git://github.com/firefoxic/release-it.git"
 	},
 	"exports": null,
 	"files": [],
 	"bin": {
-		"update-changelog": "./update-changelog.sh"
+		"release-it": "./release-it.sh"
 	},
 	"keywords": [
-		"changelog",
 		"cli",
-		"prepare",
-		"update"
+		"automation",
+		"npm",
+		"package",
+		"release",
+		"version",
+		"changelog",
+		"git",
+		"github"
 	]
 }

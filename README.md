@@ -1,33 +1,72 @@
-# @firefoxic/update-changelog
+# @firefoxic/release-it
 
 [![License: MIT][license-image]][license-url]
 [![Changelog][changelog-image]][changelog-url]
 [![NPM version][npm-image]][npm-url]
-[![Test Status][test-image]][test-url]
 
-CLI utility for automatic update of `CHANGELOG.md`.
+A powerful release script that automates the entire release process including updating changelog, npm publishing and GitHub releases.
 
 ## Purpose
 
-Increasing the version of a package usually requires creating a commit (extra for history) with a message something like `Prepare release`. This commit should manually add a header to `CHANGELOG.md` with the new version and the release date, and change the links to the comparison at the bottom of the file.
+Publishing a new version of a package is a routine sequence of several steps involving running commands, editing files, entering passwords, copying text to GitHub, and so on. It's easy to make a mistake at any stage, especially when editing CHANGELOG.md. Do it all with a single command or push to the release branch.
 
-The `update-changelog` utility gets rid of this chore, random typos, and an unnecessary commit.
+### Usage
 
-## Installation
+Locally just run:
 
 ```shell
-pnpm add -D @firefoxic/update-changelog
+pnpm dlx @firefoxic/release-it
 ```
 
-## Usage
+and enter OTP.
 
-When creating a new version, simply do not create the `Prepare release` commit. Just run `update-changelog` directly after the `pnpm version <release_type>` command.
+Or add running with two secret tokens in your CI pipeline:
 
-You can use it in your CI pipeline. See the [`release.yaml`](https://github.com/firefoxic/update-changelog/blob/main/.github/workflows/release.yaml) file for an example.
+```yaml
+- run: pnpm dlx @firefoxic/release-it
+  env:
+    NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+```
 
-## Some restrictions
+See [`release.yaml`](https://github.com/firefoxic/release-it/blob/main/.github/workflows/release.yaml) file as an example.
 
-The `update-changelog` expects the following:
+### Requirements
+
+- Node.js and pnpm
+- Git repository with GitHub remote
+- [**GitHub CLI (gh)**](https://cli.github.com) for locally using
+
+	```shell
+	# First time setup — authenticate with GitHub
+	gh auth login
+	```
+
+#### Branch-based Release Types
+
+The release script uses branch names to determine the release type:
+
+- **`release`** → Stable release (e.g., `1.0.0`)
+- **`release-alpha`** → Alpha prerelease (e.g., `1.0.0-alpha.1`)
+- **`release-beta`** → Beta prerelease (e.g., `1.0.0-beta.1`)
+- **`release-rc`** → Release candidate (e.g., `1.0.0-rc.1`)
+- **`release-`** → Numbered prerelease (e.g., `1.0.0-1`)
+
+#### Version Detection
+
+The script automatically determines the version bump based on changelog content:
+
+- **`### Changed`** → Major version (breaking changes)
+- **`### Added`** → Minor version (new features)
+- **`### Fixed`** → Patch version (bug fixes)
+
+#### Authentication
+
+- **CI/CD**: Uses `NPM_TOKEN` environment variable automatically
+- **Local**: Interactive OTP prompt or `--otp` flag
+- **GitHub**: Requires `gh auth login` or `GITHUB_TOKEN` environment variable
+
+#### Changelog restrictions
 
 - The name of the changelog file is `CHANGELOG.md`.
 - The format of the changelog is consistent with [Keep a changelog](https://keepachangelog.com).
@@ -38,16 +77,11 @@ The `update-changelog` expects the following:
 	[Unreleased]: https://github.com/<user-name>/<project-name>/compare/v0.0.1...HEAD
 	```
 
-	**Example:** [the state of this project's changelog](https://github.com/firefoxic/update-changelog/commit/37b9102f8673fedae2cdeaf9e44f027360617cea#diff-06572a96a58dc510037d5efa622f9bec8519bc1beab13c9f251e97e657a9d4edR7-R14) before the first release.
-
-[license-url]: https://github.com/firefoxic/update-changelog/blob/main/LICENSE.md
+[license-url]: https://github.com/firefoxic/release-it/blob/main/LICENSE.md
 [license-image]: https://img.shields.io/badge/License-MIT-limegreen.svg
 
-[changelog-url]: https://github.com/firefoxic/update-changelog/blob/main/CHANGELOG.md
+[changelog-url]: https://github.com/firefoxic/release-it/blob/main/CHANGELOG.md
 [changelog-image]: https://img.shields.io/badge/CHANGELOG-md-limegreen
 
-[npm-url]: https://npmjs.com/package/@firefoxic/update-changelog
-[npm-image]: https://badge.fury.io/js/@firefoxic%2Fupdate-changelog.svg
-
-[test-url]: https://github.com/firefoxic/update-changelog/actions
-[test-image]: https://github.com/firefoxic/update-changelog/actions/workflows/test.yml/badge.svg?branch=main
+[npm-url]: https://npmjs.com/package/@firefoxic/release-it
+[npm-image]: https://badge.fury.io/js/@firefoxic%2Frelease-it.svg

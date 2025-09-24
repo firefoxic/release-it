@@ -7,6 +7,19 @@ The format is based on [Keep a Changelog](https://keepachangelog.com), and 
 
 ## [Unreleased]
 
+### Changed
+
+- The project has been renamed to `@firefoxic/release-it`.
+- The launch command for local installation has been renamed to `release-it`.
+- The tool now not only updates the changelog, but also performs all other steps before and after that are necessary to publish a new version of the package. This means that you need to remove the commands and logic for raising the version and publishing it from the pipeline and scripts.
+
+### Added
+
+- Pre-release versions are now possible, and their names are determined based on the branch name.
+- Before updating the changelog, the package version is now raised according to the version type (still selected based on the changelog content) and possible pre-release status.
+- The package with the new version is now built and published to npm with the appropriate authentication — `NPM_TOKEN` for CI or `OTP` for local execution.
+- A release of the published version is now automatically created on GitHub.
+
 ## [2.0.2] — 2025–09–24
 
 ### Fixed
@@ -51,13 +64,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com), and 
 
 ### Added
 
-- The basic functionality of the `update-changelog` CLI utility.
+- The basic functionality of the `update-changelog` CLI utility.
 
-[Unreleased]: https://github.com/firefoxic/update-changelog/compare/v2.0.2...HEAD
-[2.0.2]: https://github.com/firefoxic/update-changelog/compare/v2.0.1...v2.0.2
-[2.0.1]: https://github.com/firefoxic/update-changelog/compare/v2.0.0...v2.0.1
-[2.0.0]: https://github.com/firefoxic/update-changelog/compare/v1.0.0...v2.0.0
-[1.0.0]: https://github.com/firefoxic/update-changelog/compare/v0.2.1...v1.0.0
-[0.2.1]: https://github.com/firefoxic/update-changelog/compare/v0.2.0...v0.2.1
-[0.2.0]: https://github.com/firefoxic/update-changelog/compare/v0.1.0...v0.2.0
-[0.1.0]: https://github.com/firefoxic/update-changelog/releases/tag/v0.1.0
+[Unreleased]: https://github.com/firefoxic/release-it/compare/v2.0.2...HEAD
+[2.0.2]: https://github.com/firefoxic/release-it/compare/v2.0.1...v2.0.2
+[2.0.1]: https://github.com/firefoxic/release-it/compare/v2.0.0...v2.0.1
+[2.0.0]: https://github.com/firefoxic/release-it/compare/v1.0.0...v2.0.0
+[1.0.0]: https://github.com/firefoxic/release-it/compare/v0.2.1...v1.0.0
+[0.2.1]: https://github.com/firefoxic/release-it/compare/v0.2.0...v0.2.1
+[0.2.0]: https://github.com/firefoxic/release-it/compare/v0.1.0...v0.2.0
+[0.1.0]: https://github.com/firefoxic/release-it/releases/tag/v0.1.0
