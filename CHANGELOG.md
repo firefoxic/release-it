@@ -7,6 +7,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com), and 
 
 ## [Unreleased]
 
+### Changed
+
+- The package now uses [trusted publishing](https://docs.npmjs.com/trusted-publishers) instead of NPM tokens. You should remove the line with `NPM_TOKEN` from your release pipeline (and also remove the `NPM_TOKEN` from secrets of your repository) and add a line with `registry-url: 'https://registry.npmjs.org'` (see the changes to the `release.yaml` file as an example).
+
 ## [3.0.0] — 2025–09–24
 
 ### Changed

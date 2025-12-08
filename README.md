@@ -25,7 +25,6 @@ Or add running with two secret tokens in your CI pipeline:
 ```yaml
 - run: pnpm dlx @firefoxic/release-it
   env:
-    NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 ```
 

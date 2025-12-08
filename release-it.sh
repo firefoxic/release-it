@@ -34,8 +34,6 @@ validate_release_branch() {
 
 setup_authentication() {
 	if [[ "${CI:-}" == "true" ]]; then
-		echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" >> ~/.npmrc
-
 		git config --global user.email "actions@users.noreply.github.com"
 		git config --global user.name "GitHub Actions"
 	else
@@ -168,7 +166,7 @@ update-changelog() {
 
 publish_to_npm() {
 	if [[ "${CI:-}" == "true" ]]; then
-		pnpm publish --provenance --access public --no-git-checks
+		npm publish --provenance --access public --no-git-checks
 	else
 		pnpm publish --access public --no-git-checks --otp="$NPM_OTP"
 	fi
@@ -225,7 +223,7 @@ VERSION DETECTION:
 
 AUTHENTICATION:
     • Local: Enter OTP interactively
-    • CI: Uses NPM_TOKEN secret automatically
+    • CI: Uses NPM trusted publishing
     • GitHub Release: Requires 'gh auth login' or GITHUB_TOKEN
 
 EXAMPLES:

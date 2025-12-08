@@ -23,8 +23,9 @@ jobs:
         with:
           node-version-file: package.json
           cache: pnpm
+          registry-url: 'https://registry.npmjs.org'
+      - run: pnpm add -g npm@latest
       - run: pnpm install
       - run: ./release-it.sh
         env:
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
