@@ -155,13 +155,13 @@ update-changelog() {
 	git add "$changelog_file" 2>/dev/null || true
 	git commit --amend --no-edit -n
 	git tag $tag_name
-    git push origin "$CURRENT_BRANCH" || true
+	git push origin "$CURRENT_BRANCH" || true
 
-    if git ls-remote --tags origin | grep -q "refs/tags/$tag_name"; then
-        git push --force origin "refs/tags/$tag_name"
-    else
-        git push origin "refs/tags/$tag_name"
-    fi
+	if git ls-remote --tags origin | grep -q "refs/tags/$tag_name"; then
+		git push --force origin "refs/tags/$tag_name"
+	else
+		git push origin "refs/tags/$tag_name"
+	fi
 }
 
 publish_to_npm() {
