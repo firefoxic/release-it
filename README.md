@@ -15,7 +15,7 @@ Publishing a new version of a package is a routine sequence of several step
 Locally just run:
 
 ```shell
-pnpm dlx @firefoxic/release-it
+npx @firefoxic/release-it # or pnpm dlx @firefoxic/release-it
 ```
 
 and enter OTP.
@@ -23,7 +23,7 @@ and enter OTP.
 Or add running with secret token in your CI pipeline:
 
 ```yaml
-- run: pnpm dlx @firefoxic/release-it
+- run: npx @firefoxic/release-it
   env:
     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 ```
@@ -32,7 +32,7 @@ See [`release.yaml`](https://github.com/firefoxic/release-it/blob/main/.github/w
 
 ### Requirements
 
-- Node.js and pnpm
+- Node.js
 - Git repository with GitHub remote
 - [**GitHub CLI (gh)**](https://cli.github.com) for locally using
 

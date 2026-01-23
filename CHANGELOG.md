@@ -7,6 +7,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com), and 
 
 ## [Unreleased]
 
+### Fixed
+
+- The package no longer requires `pnpm`. But `pnpm` is highly recommended 😉
+
 ## [4.0.0] — 2025–12–08
 
 ### Changed

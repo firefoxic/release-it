@@ -64,20 +64,20 @@ create_version() {
 	local current_version=$(jq -r '.version' package.json)
 
 	if [[ "$RELEASE_TYPE" == "stable" ]]; then
-		pnpm version "$VERSION_TYPE"
+		npm version "$VERSION_TYPE"
 		PRERELEASE_FLAG=""
 	elif [[ "$RELEASE_TYPE" == "unnamed" ]]; then
 		if [[ "$current_version" =~ -[0-9]+$ ]]; then
-			pnpm version prerelease
+			npm version prerelease
 		else
-			pnpm version "pre$VERSION_TYPE"
+			npm version "pre$VERSION_TYPE"
 		fi
 		PRERELEASE_FLAG="--prerelease"
 	else
 		if [[ "$current_version" =~ -${PRERELEASE_SUFFIX}\.[0-9]+$ ]]; then
-			pnpm version prerelease
+			npm version prerelease
 		else
-			pnpm version "pre$VERSION_TYPE" --preid="$PRERELEASE_SUFFIX"
+			npm version "pre$VERSION_TYPE" --preid="$PRERELEASE_SUFFIX"
 		fi
 		PRERELEASE_FLAG="--prerelease"
 	fi
@@ -165,10 +165,20 @@ update-changelog() {
 }
 
 publish_to_npm() {
+	local npm_tag="latest"
+
+	if [[ -n "$PRERELEASE_FLAG" ]]; then
+		if [[ "$RELEASE_TYPE" == "unnamed" ]]; then
+			npm_tag="next"
+		else
+			npm_tag="$PRERELEASE_SUFFIX"
+		fi
+	fi
+
 	if [[ "${CI:-}" == "true" ]]; then
-		npm publish --provenance --access public --no-git-checks
+		npm publish --provenance --access public --tag "$npm_tag"
 	else
-		pnpm publish --access public --no-git-checks --otp="$NPM_OTP"
+		npm publish --access public --tag "$npm_tag" --otp="$NPM_OTP"
 	fi
 }
 
@@ -203,9 +213,9 @@ OPTIONS:
     -h, --help     Show this help message
 
 REQUIREMENTS:
-    • GitHub CLI (gh) must be installed: https://cli.github.com
-    • Node.js and pnpm for package management
+    • Node.js
     • Git repository with proper remote setup
+    • GitHub CLI (gh) must be installed: https://cli.github.com
 
 BRANCH REQUIREMENTS:
     • Must be on a branch starting with “release”
