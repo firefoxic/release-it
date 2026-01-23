@@ -20,7 +20,7 @@ pnpm dlx @firefoxic/release-it
 
 and enter OTP.
 
-Or add running with two secret tokens in your CI pipeline:
+Or add running with secret token in your CI pipeline:
 
 ```yaml
 - run: pnpm dlx @firefoxic/release-it
@@ -61,7 +61,7 @@ The script automatically determines the version bump based on changelog conte
 
 #### Authentication
 
-- **CI/CD**: Uses `NPM_TOKEN` environment variable automatically
+- **CI/CD**: Uses NPM trusted publishing
 - **Local**: Interactive OTP prompt or `--otp` flag
 - **GitHub**: Requires `gh auth login` or `GITHUB_TOKEN` environment variable
 
