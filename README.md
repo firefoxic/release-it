@@ -12,23 +12,21 @@ Publishing a new version of a package is a routine sequence of several step
 
 ### Usage
 
-Locally just run:
+- In GitHub CI
 
-```shell
-npx @firefoxic/release-it # or pnpm dlx @firefoxic/release-it
-```
+	1. Create a release action. See the [`release.yaml`](https://github.com/firefoxic/release-it/blob/main/.github/workflows/release.yaml) file for an example, where important points are described in the comments.
+	2. In the settings of your package on <https://npmjs.com>, enable trusted publishing (if you haven't already).
+	3. Push the branch named starting with `release` (see below) to GitHub.
 
-and enter OTP.
+- Locally
 
-Or add running with secret token in your CI pipeline:
+	1. On the branch with a name starting with `release` (see below), just run:
 
-```yaml
-- run: npx @firefoxic/release-it
-  env:
-    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-```
+		```shell
+		npx @firefoxic/release-it # or pnpm dlx @firefoxic/release-it
+		```
 
-See [`release.yaml`](https://github.com/firefoxic/release-it/blob/main/.github/workflows/release.yaml) file as an example.
+	2. And enter OTP.
 
 ### Requirements
 

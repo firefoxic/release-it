@@ -3,11 +3,11 @@ name: Release
 on:
   push:
     branches:
-      - release*
+      - release* # * implies any branch starting with `release`
 
 permissions:
-  contents: write
-  id-token: write
+  contents: write # Required for github releases
+  id-token: write # Required for OIDC authentication
 
 jobs:
   release:
@@ -23,9 +23,9 @@ jobs:
         with:
           node-version-file: package.json
           cache: pnpm
-          registry-url: 'https://registry.npmjs.org'
-      - run: pnpm add -g npm@latest
+          registry-url: 'https://registry.npmjs.org' # Required for trusted publishing
+      - run: pnpm add -g npm@latest # Update npm to at least v11.5.1 for trusted publishing
       - run: pnpm install
-      - run: ./release-it.sh
+      - run: ./release-it.sh # Instead, run `pnpm dlx @firefoxic/release-it` or `npx @firefoxic/release-it` in your action
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Required for github releases
