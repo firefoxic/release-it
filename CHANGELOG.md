@@ -7,6 +7,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com), and 
 
 ## [Unreleased]
 
+## [4.0.1] — 2026–01–24
+
 ### Fixed
 
 - The package no longer requires `pnpm`. But `pnpm` is highly recommended 😉
@@ -78,7 +80,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com), and 
 
 - The basic functionality of the `update-changelog` CLI utility.
 
-[Unreleased]: https://github.com/firefoxic/release-it/compare/v4.0.0...HEAD
+[Unreleased]: https://github.com/firefoxic/release-it/compare/v4.0.1...HEAD
+[4.0.1]: https://github.com/firefoxic/release-it/compare/v4.0.0...v4.0.1
 [4.0.0]: https://github.com/firefoxic/release-it/compare/v3.0.0...v4.0.0
 [3.0.0]: https://github.com/firefoxic/release-it/compare/v2.0.2...v3.0.0
 [2.0.2]: https://github.com/firefoxic/release-it/compare/v2.0.1...v2.0.2
