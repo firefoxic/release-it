@@ -23,7 +23,9 @@ Publishing a new version of a package is a routine sequence of several step
 	1. On the branch with a name starting with `release` (see below), just run:
 
 		```shell
-		npx @firefoxic/release-it # or pnpm dlx @firefoxic/release-it
+		npx @firefoxic/release-it
+		# or
+		# pnpm dlx @firefoxic/release-it
 		```
 
 	2. And enter OTP.
