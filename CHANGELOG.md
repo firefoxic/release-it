@@ -7,6 +7,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com), and 
 
 ## [Unreleased]
 
+### Added
+
+- `@firefoxic/release-it` will now automatically update `npm` if its version is older than `11.5.1`, which is the minimum version required for trusted publishing. You can now remove the `npm` update command from your GitHub Action.
+
 ## [4.0.1] — 2026–01–24
 
 ### Fixed

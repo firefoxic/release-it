@@ -24,7 +24,6 @@ jobs:
           node-version-file: package.json
           cache: pnpm
           registry-url: 'https://registry.npmjs.org' # Required for trusted publishing
-      - run: pnpm add -g npm@latest # Update npm to at least v11.5.1 for trusted publishing
       - run: pnpm install
       - run: ./release-it.sh # Instead, run `pnpm dlx @firefoxic/release-it` or `npx @firefoxic/release-it` in your action
         env:

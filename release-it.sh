@@ -182,6 +182,21 @@ publish_to_npm() {
 	fi
 }
 
+update_npm() {
+	local CURRENT_NPM_VERSION=$(npm -v)
+	local TARGET_NPM_VERSION="11.5.1"
+
+	if [[ "$(printf '%s\n' "$TARGET_NPM_VERSION" "$CURRENT_NPM_VERSION" | sort -V | head -n1)" == "$TARGET_NPM_VERSION" ]]
+	then return 0
+	fi
+	echo "Updating npm..."
+    mkdir -p "$HOME/.npm-global"
+    export NPM_CONFIG_PREFIX="$HOME/.npm-global"
+    npm install -g npm@latest
+    export PATH="$HOME/.npm-global/bin:$PATH"
+	echo "The npm version has been updated to $(npm -v)!"
+}
+
 create_github_release() {
 	if ! command -v gh >/dev/null 2>&1; then
 		error "GitHub CLI (gh) is required but not installed.\nInstall from: https://cli.github.com"
@@ -258,6 +273,7 @@ main() {
 		esac
 	done
 
+	update_npm
 	validate_release_branch
 	setup_authentication
 	detect_version_type
