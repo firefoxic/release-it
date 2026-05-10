@@ -1,6 +1,6 @@
 {
 	"name": "@firefoxic/release-it",
-	"description": "Bump, publish and release new version for npm package",
+	"description": "Bump, publish and release new version for npm package using pnpm",
 	"version": "4.1.0",
 	"license": "MIT",
 	"author": {
@@ -20,6 +20,21 @@
 	"bin": {
 		"release-it": "release-it.sh"
 	},
+	"engines": {
+		"node": ">=20.19"
+	},
+	"devEngines": {
+		"runtime": {
+			"name": "node",
+			"version": ">=20.19",
+			"onFail": "download"
+		},
+		"packageManager": {
+			"name": "pnpm",
+			"version": ">=11",
+			"onFail": "download"
+		}
+	},
 	"keywords": [
 		"cli",
 		"automation",
@@ -30,5 +45,6 @@
 		"changelog",
 		"git",
 		"github"
-	]
+	],
+	"devDependencies": {}
 }

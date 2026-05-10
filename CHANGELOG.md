@@ -7,6 +7,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com), and 
 
 ## [Unreleased]
 
+### Changed
+
+- Support for `npm` has been removed. Only `pnpm@11+` is now supported.
+
 ## [4.1.0] — 2026–02–03
 
 ### Added

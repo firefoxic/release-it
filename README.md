@@ -4,7 +4,7 @@
 [![Changelog][changelog-image]][changelog-url]
 [![NPM version][npm-image]][npm-url]
 
-A powerful release script that automates the entire release process including updating changelog, npm publishing and GitHub releases.
+A powerful release script that automates the entire release process including updating changelog, npm publishing (using `pnpm`) and GitHub releases.
 
 ## Purpose
 
@@ -23,16 +23,17 @@ Publishing a new version of a package is a routine sequence of several step
 	1. On the branch with a name starting with `release` (see below), just run:
 
 		```shell
-		npx @firefoxic/release-it
+		pnpm dlx @firefoxic/release-it
 		# or
-		# pnpm dlx @firefoxic/release-it
+		# pnx @firefoxic/release-it
 		```
 
 	2. And enter OTP.
 
 ### Requirements
 
-- Node.js
+- [**pnpm**](https://pnpm.io/installation#on-posix-systems)
+- [Node.js](https://nodejs.org) (you can install it using [pnpm](https://pnpm.io/cli/runtime))
 - Git repository with GitHub remote
 - [**GitHub CLI (gh)**](https://cli.github.com) for locally using
 

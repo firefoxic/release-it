@@ -16,15 +16,10 @@ jobs:
       - uses: actions/checkout@v6
         with:
           fetch-depth: 0
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v6
         with:
           version: latest
-      - uses: actions/setup-node@v6
-        with:
-          node-version-file: package.json
-          cache: pnpm
-          registry-url: 'https://registry.npmjs.org' # Required for trusted publishing
-      - run: pnpm install
-      - run: ./release-it.sh # Instead, run `pnpm dlx @firefoxic/release-it` or `npx @firefoxic/release-it` in your action
+          run_install: true
+      - run: ./release-it.sh # Instead, run `pnx @firefoxic/release-it` in your action
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Required for github releases

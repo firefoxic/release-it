@@ -37,7 +37,7 @@ setup_authentication() {
 		git config --global user.email "actions@users.noreply.github.com"
 		git config --global user.name "GitHub Actions"
 	else
-		echo -n "Enter NPM OTP: "
+		echo -n "Enter NPM_OTP: "
 		read -r NPM_OTP
 	fi
 }
@@ -64,20 +64,20 @@ create_version() {
 	local current_version=$(jq -r '.version' package.json)
 
 	if [[ "$RELEASE_TYPE" == "stable" ]]; then
-		npm version "$VERSION_TYPE"
+		pnpm version "$VERSION_TYPE"
 		PRERELEASE_FLAG=""
 	elif [[ "$RELEASE_TYPE" == "unnamed" ]]; then
 		if [[ "$current_version" =~ -[0-9]+$ ]]; then
-			npm version prerelease
+			pnpm version prerelease
 		else
-			npm version "pre$VERSION_TYPE"
+			pnpm version "pre$VERSION_TYPE"
 		fi
 		PRERELEASE_FLAG="--prerelease"
 	else
 		if [[ "$current_version" =~ -${PRERELEASE_SUFFIX}\.[0-9]+$ ]]; then
-			npm version prerelease
+			pnpm version prerelease
 		else
-			npm version "pre$VERSION_TYPE" --preid="$PRERELEASE_SUFFIX"
+			pnpm version "pre$VERSION_TYPE" --preid="$PRERELEASE_SUFFIX"
 		fi
 		PRERELEASE_FLAG="--prerelease"
 	fi
@@ -176,25 +176,10 @@ publish_to_npm() {
 	fi
 
 	if [[ "${CI:-}" == "true" ]]; then
-		npm publish --provenance --access public --tag "$npm_tag"
+		pnpm publish --provenance --access public --tag "$npm_tag"
 	else
-		npm publish --access public --tag "$npm_tag" --otp="$NPM_OTP"
+		pnpm publish --access public --tag "$npm_tag" --otp="$NPM_OTP"
 	fi
-}
-
-update_npm() {
-	local CURRENT_NPM_VERSION=$(npm -v)
-	local TARGET_NPM_VERSION="11.5.1"
-
-	if [[ "$(printf '%s\n' "$TARGET_NPM_VERSION" "$CURRENT_NPM_VERSION" | sort -V | head -n1)" == "$TARGET_NPM_VERSION" ]]
-	then return 0
-	fi
-	echo "Updating npm..."
-    mkdir -p "$HOME/.npm-global"
-    export NPM_CONFIG_PREFIX="$HOME/.npm-global"
-    npm install -g npm@latest
-    export PATH="$HOME/.npm-global/bin:$PATH"
-	echo "The npm version has been updated to $(npm -v)!"
 }
 
 create_github_release() {
@@ -219,7 +204,7 @@ create_github_release() {
 
 show_help() {
 	cat << EOF
-📦 Bump, publish and release new version for npm package
+📦 Bump, publish and release new version for npm package using pnpm
 
 USAGE:
     $0 [OPTIONS]
@@ -273,7 +258,6 @@ main() {
 		esac
 	done
 
-	update_npm
 	validate_release_branch
 	setup_authentication
 	detect_version_type
