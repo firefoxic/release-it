@@ -211,6 +211,7 @@ USAGE:
 
 OPTIONS:
     -h, --help     Show this help message
+	-v, --version  Show current version
 
 REQUIREMENTS:
     • Node.js
@@ -249,6 +250,10 @@ main() {
 		case $1 in
 			-h|--help)
 				show_help
+				exit 0
+				;;
+			-v|--version)
+				jq -r '.version' package.json 2>/dev/null || echo "Version not found"
 				exit 0
 				;;
 			*)

@@ -7,6 +7,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com), and 
 
 ## [Unreleased]
 
+### Added
+
+- `--version` flag (shorthand: `-v`) has been added to show the current version of `@firefoxic/release-it`.
+
 ## [5.0.0] — 2026–05–10
 
 ### Changed
