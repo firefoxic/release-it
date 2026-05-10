@@ -7,6 +7,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com), and 
 
 ## [Unreleased]
 
+## [5.0.0] — 2026–05–10
+
 ### Changed
 
 - Support for `npm` has been removed. Only `pnpm@11+` is now supported.
@@ -91,7 +93,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com), and 
 
 - The basic functionality of the `update-changelog` CLI utility.
 
-[Unreleased]: https://github.com/firefoxic/release-it/compare/v4.1.0...HEAD
+[Unreleased]: https://github.com/firefoxic/release-it/compare/v5.0.0...HEAD
+[5.0.0]: https://github.com/firefoxic/release-it/compare/v4.1.0...v5.0.0
 [4.1.0]: https://github.com/firefoxic/release-it/compare/v4.0.1...v4.1.0
 [4.0.1]: https://github.com/firefoxic/release-it/compare/v4.0.0...v4.0.1
 [4.0.0]: https://github.com/firefoxic/release-it/compare/v3.0.0...v4.0.0
