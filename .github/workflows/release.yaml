@@ -3,7 +3,8 @@ name: Release
 on:
   push:
     branches:
-      - release* # * implies any branch starting with `release`
+      - release
+      - release-* # * implies any branch starting with `release-` for prelease versions
 
 permissions:
   contents: write # Required for github releases
