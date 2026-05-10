@@ -207,7 +207,7 @@ show_help() {
 📦 Bump, publish and release new version for npm package using pnpm
 
 USAGE:
-    $0 [OPTIONS]
+    release-it [OPTIONS]
 
 OPTIONS:
     -h, --help     Show this help message
@@ -237,9 +237,9 @@ AUTHENTICATION:
     • GitHub Release: Requires 'gh auth login' or GITHUB_TOKEN
 
 EXAMPLES:
-    $0                          # Interactive OTP
-    GITHUB_TOKEN=... $0         # With GitHub release
-    gh auth login && $0         # GitHub auth via CLI
+    release-it                          # Interactive OTP
+    GITHUB_TOKEN=... release-it         # With GitHub release
+    gh auth login && release-it         # GitHub auth via CLI
 
 EOF
 }
