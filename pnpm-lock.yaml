@@ -208,7 +208,7 @@ importers:
   .:
     devDependencies:
       node:
-        specifier: runtime:>=20.19
+        specifier: runtime:>=22.22
         version: runtime:26.1.0
 
 packages:

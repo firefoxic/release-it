@@ -10,6 +10,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com), and 
 ### Changed
 
 - Support for `npm` has been removed. Only `pnpm@11+` is now supported.
+- `node.js` now requires version `22.22.0` or later.
 
 ## [4.1.0] — 2026–02–03
 
