@@ -11,6 +11,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com), and 
 
 - `--version` flag (shorthand: `-v`) has been added to show the current version of `@firefoxic/release-it`.
 
+### Fixed
+
+- The protocol in the repository's metadata URL now meets current requirements.
+
 ## [5.0.0] — 2026–05–10
 
 ### Changed
