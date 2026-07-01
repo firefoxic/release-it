@@ -20,18 +20,15 @@
 	"bin": {
 		"release-it": "release-it.sh"
 	},
-	"engines": {
-		"node": ">=22.22"
-	},
 	"devEngines": {
 		"runtime": {
 			"name": "node",
-			"version": ">=22.22",
+			"version": ">=26.4",
 			"onFail": "download"
 		},
 		"packageManager": {
 			"name": "pnpm",
-			"version": ">=11",
+			"version": ">=11.9",
 			"onFail": "download"
 		}
 	},
