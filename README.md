@@ -2,7 +2,6 @@
 
 [![License: MIT][license-image]][license-url]
 [![Changelog][changelog-image]][changelog-url]
-[![NPM version][npm-image]][npm-url]
 
 A powerful release script that automates the entire release process including updating changelog, npm publishing (using `pnpm`) and GitHub releases.
 
@@ -82,6 +81,3 @@ The script automatically determines the version bump based on changelog conte
 
 [changelog-url]: https://github.com/firefoxic/release-it/blob/main/CHANGELOG.md
 [changelog-image]: https://img.shields.io/badge/CHANGELOG-md-limegreen
-
-[npm-url]: https://npmjs.com/package/@firefoxic/release-it
-[npm-image]: https://badge.fury.io/js/@firefoxic%2Frelease-it.svg
