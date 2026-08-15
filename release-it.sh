@@ -144,7 +144,7 @@ update-changelog() {
 	[[ -f "$changelog_file" ]] || error "$changelog_file not found"
 
 	local version="${TAG_NAME#v}"
-	local temp_file
+	local temp_file awk_status=0
 	temp_file=$(mktemp)
 
 	# The tag is dropped here and recreated after the amend, so that it ends up
@@ -199,11 +199,12 @@ update-changelog() {
 			exit 1
 		}
 	}
-	' "$changelog_file" > "$temp_file"
+	' "$changelog_file" > "$temp_file" || awk_status=$?
 
-	if [[ $? -ne 0 ]] || [[ ! -s "$temp_file" ]] || ! grep -q "\[$version\]:" "$temp_file"; then
+	# `set -e` would otherwise abort right here, before the diagnosis below.
+	if [[ "$awk_status" -ne 0 ]] || [[ ! -s "$temp_file" ]] || ! grep -q "\[$version\]:" "$temp_file"; then
 		rm -f "$temp_file"
-		error "AWK processing failed"
+		error "$changelog_file could not be rewritten"
 	fi
 
 	if [[ "$DRY_RUN" == "true" ]]; then
