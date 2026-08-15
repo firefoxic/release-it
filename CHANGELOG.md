@@ -17,6 +17,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com), and 
 - `jq` is no longer required. It was an undeclared dependency, and the version is now read with `pnpm` instead.
 - A `CHANGELOG.md` that cannot be rewritten is now reported as an error. Previously the script died silently at that point, leaving a temporary file behind.
 - A rejected push of the release branch now stops the release. Previously the failure was ignored, so the package was published and a GitHub release was created for a commit that never reached the remote.
+- The OTP is no longer echoed to the terminal while you type it.
 
 ## [5.1.0] — 2026–07–01
 

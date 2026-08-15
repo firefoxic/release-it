@@ -72,7 +72,10 @@ setup_authentication() {
 		NPM_OTP="<otp>"
 	else
 		echo -n "Enter NPM_OTP: "
-		read -r NPM_OTP
+		# -s keeps the one-time password off the screen; the newline the user
+		# typed is not echoed either, so it has to be printed here.
+		read -rs NPM_OTP
+		echo
 	fi
 }
 
