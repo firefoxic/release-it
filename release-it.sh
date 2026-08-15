@@ -20,6 +20,24 @@ note() {
 	echo -e "\033[0;36m$1\033[0m"
 }
 
+# Directory holding this script, with symlinks resolved — package managers
+# link the bin into `node_modules/.bin` rather than copying it.
+script_dir() {
+	local source="${BASH_SOURCE[0]}" dir
+
+	while [[ -L "$source" ]]; do
+		dir=$(cd -P "$(dirname "$source")" && pwd)
+		source=$(readlink "$source")
+		[[ "$source" == /* ]] || source="$dir/$source"
+	done
+
+	cd -P "$(dirname "$source")" && pwd
+}
+
+package_version() {
+	pnpm pkg get version
+}
+
 # Runs a command, or merely announces it under --dry-run.
 run() {
 	if [[ "$DRY_RUN" == "true" ]]; then
@@ -83,15 +101,14 @@ preview_version() {
 	sandbox=$(mktemp -d)
 
 	cp package.json "$sandbox/package.json"
-	(cd "$sandbox" && pnpm version "$@" --no-git-tag-version >/dev/null)
+	(cd "$sandbox" && pnpm version "$@" --no-git-tag-version >/dev/null && package_version)
 
-	jq -r '.version' "$sandbox/package.json"
 	rm -rf "$sandbox"
 }
 
 create_version() {
-	local current_version=$(jq -r '.version' package.json)
-	local bump=()
+	local current_version bump=()
+	current_version=$(package_version)
 
 	if [[ "$RELEASE_TYPE" == "stable" ]]; then
 		bump=("$VERSION_TYPE")
@@ -118,7 +135,7 @@ create_version() {
 		note "  $current_version → ${TAG_NAME#v}"
 	else
 		pnpm version "${bump[@]}"
-		TAG_NAME="v$(jq -r '.version' package.json)"
+		TAG_NAME="v$(package_version)"
 	fi
 }
 
@@ -272,6 +289,7 @@ OPTIONS:
 
 REQUIREMENTS:
     • Node.js
+    • pnpm
     • Git repository with proper remote setup
     • GitHub CLI (gh) must be installed: https://cli.github.com
 
@@ -311,7 +329,7 @@ main() {
 				exit 0
 				;;
 			-v|--version)
-				jq -r '.version' package.json 2>/dev/null || echo "Version not found"
+				(cd "$(script_dir)" && package_version) 2>/dev/null || echo "Version not found"
 				exit 0
 				;;
 			-n|--dry-run)

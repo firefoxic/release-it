@@ -4,7 +4,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-A single self-contained Bash script ([release-it.sh](release-it.sh)) published to npm as `@firefoxic/release-it` and exposed via the `bin` field as `release-it`. There is no build step, no source-to-dist transform, no dependencies, and no test suite — `package.json` has `"exports": null`, `"files": []`, and empty `devDependencies`. Editing the script *is* editing the product.
+A single self-contained Bash script ([release-it.sh](release-it.sh)) published to npm as `@firefoxic/release-it` and exposed via the `bin` field as `release-it`. There is no build step, no source-to-dist transform and no dependencies — `package.json` has `"exports": null`, `"files": []`, and empty `devDependencies`. Editing the script *is* editing the product.
+
+External tools the script shells out to are `git`, `pnpm` and `gh`, and nothing else. Keep it that way: an undeclared `jq` dependency lived here for a while, and version reads now go through `pnpm pkg get version`.
 
 The repo is self-hosting: it releases itself with its own script via [.github/workflows/release.yaml](.github/workflows/release.yaml), which runs `./release-it.sh` directly (consumers are told to run `pnx @firefoxic/release-it` instead).
 
@@ -17,7 +19,7 @@ tests/run.sh release/main_is     # narrow enough to select a single test
 KEEP_SANDBOX=1 tests/run.sh …    # keep the temporary repositories for inspection
 
 ./release-it.sh --help      # -h — usage text
-./release-it.sh --version   # -v — reads .version from package.json via jq
+./release-it.sh --version   # -v — release-it's own version, not the project's
 ./release-it.sh --dry-run   # -n — walk the whole pipeline, change nothing
 ./release-it.sh             # full release; publishes for real — use the tests instead
 ```

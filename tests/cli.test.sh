@@ -23,11 +23,25 @@ test_unknown_option_reports_an_error() {
 	assert_contains "$RELEASE_OUT" "USAGE:"
 }
 
-test_version_flag_prints_a_version() {
+test_version_flag_prints_the_tools_own_version() {
 	make_repo 4.5.6
 
 	run_release_it --version
 
 	assert_succeeded
-	assert_eq "4.5.6" "$RELEASE_OUT" "the version of the surrounding project is reported"
+	assert_eq "$(own_version)" "$RELEASE_OUT" "release-it reports itself, not the project it would release"
+	assert_not_contains "$RELEASE_OUT" "4.5.6"
+}
+
+# How package managers actually expose the bin: a link in `node_modules/.bin`.
+test_version_flag_follows_a_symlinked_bin() {
+	make_repo 4.5.6
+	mkdir -p "$SANDBOX/bin-link"
+	ln -s "$RELEASE_IT" "$SANDBOX/bin-link/release-it"
+
+	RELEASE_OUT="$("$SANDBOX/bin-link/release-it" --version 2>"$SANDBOX/stderr")"
+	RELEASE_STATUS=$?
+
+	assert_succeeded
+	assert_eq "$(own_version)" "$RELEASE_OUT"
 }

@@ -11,6 +11,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com), and 
 
 - `--dry-run` flag (shorthand: `-n`) has been added. It walks through the whole release — branch check, version bump, changelog rewrite, npm tag and GitHub release notes — and reports what would happen without writing, pushing or publishing anything.
 
+### Fixed
+
+- `--version` now reports the version of `@firefoxic/release-it` itself. Previously it printed the version of the package you were about to release.
+- `jq` is no longer required. It was an undeclared dependency, and the version is now read with `pnpm` instead.
+
 ## [5.1.0] — 2026–07–01
 
 ### Added

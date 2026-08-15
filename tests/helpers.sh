@@ -196,6 +196,11 @@ package_version() {
 	"$REAL_PNPM" pkg get version
 }
 
+# The version of release-it itself, read straight from its own manifest.
+own_version() {
+	(cd "$ROOT_DIR" && "$REAL_PNPM" pkg get version)
+}
+
 published_args() {
 	cat "$PUBLISH_LOG"
 }
