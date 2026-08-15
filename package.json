@@ -20,6 +20,9 @@
 	"bin": {
 		"release-it": "release-it.sh"
 	},
+	"scripts": {
+		"test": "tests/run.sh"
+	},
 	"devEngines": {
 		"runtime": {
 			"name": "node",

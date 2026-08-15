@@ -11,12 +11,25 @@ The repo is self-hosting: it releases itself with its own script via [.github/wo
 ## Commands
 
 ```shell
+pnpm test                        # whole suite
+tests/run.sh changelog           # only tests whose suite/name matches the substring
+tests/run.sh release/main_is     # narrow enough to select a single test
+KEEP_SANDBOX=1 tests/run.sh …    # keep the temporary repositories for inspection
+
 ./release-it.sh --help      # -h — usage text
 ./release-it.sh --version   # -v — reads .version from package.json via jq
-./release-it.sh             # full release; refuses to run outside a release* branch
+./release-it.sh             # full release; publishes for real — use the tests instead
 ```
 
-There is no lint/test/build command. Verify changes by reading the script and, if needed, exercising individual functions in a throwaway git repo — running `main` end to end publishes to npm and GitHub for real.
+There is no lint or build step.
+
+## Tests
+
+Pure Bash, zero dependencies, in [tests/](tests/). [tests/run.sh](tests/run.sh) discovers `tests/*.test.sh`, extracts every `test_*` function, and runs each one in its own process (`run.sh --one <file> <fn>`) with a fresh sandbox — so a failed assertion just exits non-zero.
+
+[tests/helpers.sh](tests/helpers.sh) builds the sandbox: a bare `origin`, a working clone with `package.json` + `CHANGELOG.md` at a given version and on a given branch, plus stubs on `PATH`. Only `gh` and `pnpm publish` are stubbed — `pnpm version` runs for real, so version bumping is genuinely under test. `GIT_CONFIG_GLOBAL` is redirected into the sandbox, because the script runs `git config --global` under CI.
+
+Two things the assertions depend on: the release heading uses a **non-breaking space** before the em dash (use `release_heading`, never a plain space), and `make_repo`'s third argument distinguishes unset (default entry) from empty (a changelog the script must reject).
 
 ## Release pipeline architecture
 
