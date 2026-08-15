@@ -220,10 +220,13 @@ update-changelog() {
 
 	mv "$temp_file" "$changelog_file"
 
-	git add "$changelog_file" 2>/dev/null || true
+	git add "$changelog_file"
 	git commit --amend --no-edit -n
 	git tag "$TAG_NAME"
-	git push origin "$CURRENT_BRANCH" || true
+
+	# A rejected push has to stop the release: publishing and the GitHub
+	# release both come next, and both would point at an unpushed commit.
+	git push origin "$CURRENT_BRANCH"
 
 	if git ls-remote --tags origin | grep -q "refs/tags/$TAG_NAME"; then
 		git push --force origin "refs/tags/$TAG_NAME"

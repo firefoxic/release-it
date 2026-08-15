@@ -16,6 +16,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com), and 
 - `--version` now reports the version of `@firefoxic/release-it` itself. Previously it printed the version of the package you were about to release.
 - `jq` is no longer required. It was an undeclared dependency, and the version is now read with `pnpm` instead.
 - A `CHANGELOG.md` that cannot be rewritten is now reported as an error. Previously the script died silently at that point, leaving a temporary file behind.
+- A rejected push of the release branch now stops the release. Previously the failure was ignored, so the package was published and a GitHub release was created for a commit that never reached the remote.
 
 ## [5.1.0] — 2026–07–01
 
