@@ -12,6 +12,29 @@ test_changelog_and_version_share_one_commit() {
 	assert_eq "v1.3.0" "$(git tag --points-at HEAD)" "the tag points at that very commit"
 }
 
+test_previously_released_tags_are_left_alone() {
+	make_repo 1.2.3 release
+	local previous
+	previous="$(git rev-parse v1.2.3)"
+
+	run_release_it
+	assert_succeeded
+
+	assert_eq "$previous" "$(git rev-parse v1.2.3)" "the tag of the previous release does not move"
+}
+
+test_unrelated_tags_do_not_confuse_the_release() {
+	make_repo 1.2.3 release
+	git tag stable
+	git tag "widget@1.2.3"
+
+	run_release_it
+	assert_succeeded
+
+	assert_eq "v1.3.0" "$(git tag --points-at HEAD)"
+	assert_contains "$(git ls-remote --tags "$ORIGIN")" "refs/tags/v1.3.0"
+}
+
 test_changelog_gets_a_dated_release_heading() {
 	release_from 1.2.3 release
 

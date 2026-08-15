@@ -82,18 +82,20 @@ create_version() {
 		PRERELEASE_FLAG="--prerelease"
 	fi
 
-	TAG_NAME=$(git describe --tags --abbrev=0)
+	TAG_NAME="v$(jq -r '.version' package.json)"
 }
 
 update-changelog() {
 	local changelog_file="CHANGELOG.md"
 	[[ -f "$changelog_file" ]] || error "$changelog_file not found"
 
-	tag_name=$(git tag --points-at HEAD)
-	git tag -d $tag_name
-
-	version=${tag_name#v}
+	local version="${TAG_NAME#v}"
+	local temp_file
 	temp_file=$(mktemp)
+
+	# The tag is dropped here and recreated after the amend, so that it ends up
+	# on the commit carrying both the bumped version and the changelog entry.
+	git tag -d "$TAG_NAME"
 
 	awk -v version="$version" -v date="$(date '+%Y–%m–%d')" '
 	BEGIN {
@@ -154,13 +156,13 @@ update-changelog() {
 
 	git add "$changelog_file" 2>/dev/null || true
 	git commit --amend --no-edit -n
-	git tag $tag_name
+	git tag "$TAG_NAME"
 	git push origin "$CURRENT_BRANCH" || true
 
-	if git ls-remote --tags origin | grep -q "refs/tags/$tag_name"; then
-		git push --force origin "refs/tags/$tag_name"
+	if git ls-remote --tags origin | grep -q "refs/tags/$TAG_NAME"; then
+		git push --force origin "refs/tags/$TAG_NAME"
 	else
-		git push origin "refs/tags/$tag_name"
+		git push origin "refs/tags/$TAG_NAME"
 	fi
 }
 
