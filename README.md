@@ -67,6 +67,12 @@ The script automatically determines the version bump based on changelog conte
 - **`### Added`** → Minor version (new features)
 - **`### Fixed`** → Patch version (bug fixes)
 
+These three are the only headings the script recognises; any other one stops the release. That narrowing is deliberate — three headings map one to one onto the three parts of a semantic version, so nothing is left to interpretation. The remaining [Keep a Changelog](https://keepachangelog.com) headings fold into them:
+
+- **`Removed`** → **`Changed`**. Taking functionality away is a change, and a breaking one.
+- **`Security`** → **`Fixed`**. Closing a vulnerability is a bug fix.
+- **`Deprecated`** → **`Changed`**. Semantic Versioning treats a deprecation as a minor change, but deprecation messages often force a change to an established workflow, and that is a major change by nature.
+
 #### Authentication
 
 - **CI/CD**: Uses NPM trusted publishing

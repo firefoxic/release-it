@@ -314,6 +314,9 @@ VERSION DETECTION:
     • ### Added   → minor version bump
     • ### Fixed   → patch version bump
 
+    No other heading is recognised. See the README for how the remaining
+    Keep a Changelog headings fold into these three.
+
 AUTHENTICATION:
     • Local: Enter OTP interactively
     • CI: Uses NPM trusted publishing
