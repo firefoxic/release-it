@@ -213,7 +213,7 @@ USAGE:
 
 OPTIONS:
     -h, --help     Show this help message
-	-v, --version  Show current version
+    -v, --version  Show current version
 
 REQUIREMENTS:
     • Node.js
