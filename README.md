@@ -29,6 +29,14 @@ Publishing a new version of a package is a routine sequence of several step
 
 	2. And enter OTP.
 
+- Preview
+
+	To check what a release would do — which version it picks, how `CHANGELOG.md` would change, under which npm tag it would publish — without changing anything:
+
+	```shell
+	pnpm dlx @firefoxic/release-it --dry-run
+	```
+
 ### Requirements
 
 - [**pnpm**](https://pnpm.io/installation#on-posix-systems)

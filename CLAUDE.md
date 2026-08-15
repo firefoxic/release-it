@@ -18,6 +18,7 @@ KEEP_SANDBOX=1 tests/run.sh …    # keep the temporary repositories for inspect
 
 ./release-it.sh --help      # -h — usage text
 ./release-it.sh --version   # -v — reads .version from package.json via jq
+./release-it.sh --dry-run   # -n — walk the whole pipeline, change nothing
 ./release-it.sh             # full release; publishes for real — use the tests instead
 ```
 
@@ -42,6 +43,12 @@ Two things the assertions depend on: the release heading uses a **non-breaking s
 5. **`update-changelog`** — the subtle part. It deletes the tag `pnpm version` just created, rewrites `CHANGELOG.md` (inserts a `## [<version>] — <date>` heading below `## [Unreleased]` and rewrites the `[Unreleased]:` compare link, deriving `base_url` and the previous version from that link), then `git commit --amend`s the version commit, re-creates the tag on the amended commit, and force-pushes the tag if the remote already has it. So the version commit and the changelog edit end up as one commit. The awk program hard-fails if the `[Unreleased]` header or its link is missing or unparseable.
 6. **`publish_to_npm`** — dist-tag follows release type: stable → `latest`, unnamed prerelease → `next`, named prerelease → the suffix itself. CI adds `--provenance`; local uses `--otp`.
 7. **`create_github_release`** — `gh release create` with the changelog text as notes, then rebases `main` onto the release branch and pushes.
+
+## Dry run
+
+`--dry-run` routes every side effect through `run()`, which announces the command instead of executing it. Two places cannot use it and branch explicitly instead: `update-changelog` (it renders the new changelog into a temp file and shows a `diff` rather than moving it into place) and `create_github_release` (the notes arrive over a pipe).
+
+The next version comes from `preview_version()`, which bumps a *copy* of `package.json` in a temp directory with `--no-git-tag-version`. This is deliberate: `pnpm version --dry-run` is not honoured by pnpm 11 — it rewrites `package.json` and creates the commit and tag anyway. Never reach for that flag here.
 
 ## Conventions
 

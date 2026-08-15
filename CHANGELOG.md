@@ -7,6 +7,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com), and 
 
 ## [Unreleased]
 
+### Added
+
+- `--dry-run` flag (shorthand: `-n`) has been added. It walks through the whole release — branch check, version bump, changelog rewrite, npm tag and GitHub release notes — and reports what would happen without writing, pushing or publishing anything.
+
 ## [5.1.0] — 2026–07–01
 
 ### Added

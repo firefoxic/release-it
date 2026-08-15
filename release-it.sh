@@ -9,10 +9,24 @@ RELEASE_DESCRIPTION=""
 VERSION_TYPE=""
 TAG_NAME=""
 PRERELEASE_FLAG=""
+DRY_RUN=false
 
 error() {
 	echo -e "\033[0;31mError: $1\033[0m" >&2
 	exit 1
+}
+
+note() {
+	echo -e "\033[0;36m$1\033[0m"
+}
+
+# Runs a command, or merely announces it under --dry-run.
+run() {
+	if [[ "$DRY_RUN" == "true" ]]; then
+		note "→ $*"
+	else
+		"$@"
+	fi
 }
 
 validate_release_branch() {
@@ -34,8 +48,10 @@ validate_release_branch() {
 
 setup_authentication() {
 	if [[ "${CI:-}" == "true" ]]; then
-		git config --global user.email "actions@users.noreply.github.com"
-		git config --global user.name "GitHub Actions"
+		run git config --global user.email "actions@users.noreply.github.com"
+		run git config --global user.name "GitHub Actions"
+	elif [[ "$DRY_RUN" == "true" ]]; then
+		NPM_OTP="<otp>"
 	else
 		echo -n "Enter NPM_OTP: "
 		read -r NPM_OTP
@@ -60,29 +76,50 @@ detect_version_type() {
 	fi
 }
 
+# Bumps a throwaway copy of package.json to learn the next version without
+# touching the repository — `pnpm version --dry-run` still rewrites files.
+preview_version() {
+	local sandbox
+	sandbox=$(mktemp -d)
+
+	cp package.json "$sandbox/package.json"
+	(cd "$sandbox" && pnpm version "$@" --no-git-tag-version >/dev/null)
+
+	jq -r '.version' "$sandbox/package.json"
+	rm -rf "$sandbox"
+}
+
 create_version() {
 	local current_version=$(jq -r '.version' package.json)
+	local bump=()
 
 	if [[ "$RELEASE_TYPE" == "stable" ]]; then
-		pnpm version "$VERSION_TYPE"
+		bump=("$VERSION_TYPE")
 		PRERELEASE_FLAG=""
 	elif [[ "$RELEASE_TYPE" == "unnamed" ]]; then
 		if [[ "$current_version" =~ -[0-9]+$ ]]; then
-			pnpm version prerelease
+			bump=(prerelease)
 		else
-			pnpm version "pre$VERSION_TYPE"
+			bump=("pre$VERSION_TYPE")
 		fi
 		PRERELEASE_FLAG="--prerelease"
 	else
 		if [[ "$current_version" =~ -${PRERELEASE_SUFFIX}\.[0-9]+$ ]]; then
-			pnpm version prerelease
+			bump=(prerelease)
 		else
-			pnpm version "pre$VERSION_TYPE" --preid="$PRERELEASE_SUFFIX"
+			bump=("pre$VERSION_TYPE" "--preid=$PRERELEASE_SUFFIX")
 		fi
 		PRERELEASE_FLAG="--prerelease"
 	fi
 
-	TAG_NAME="v$(jq -r '.version' package.json)"
+	if [[ "$DRY_RUN" == "true" ]]; then
+		run pnpm version "${bump[@]}"
+		TAG_NAME="v$(preview_version "${bump[@]}")"
+		note "  $current_version → ${TAG_NAME#v}"
+	else
+		pnpm version "${bump[@]}"
+		TAG_NAME="v$(jq -r '.version' package.json)"
+	fi
 }
 
 update-changelog() {
@@ -95,7 +132,7 @@ update-changelog() {
 
 	# The tag is dropped here and recreated after the amend, so that it ends up
 	# on the commit carrying both the bumped version and the changelog entry.
-	git tag -d "$TAG_NAME"
+	[[ "$DRY_RUN" == "true" ]] || git tag -d "$TAG_NAME"
 
 	awk -v version="$version" -v date="$(date '+%Y–%m–%d')" '
 	BEGIN {
@@ -152,6 +189,17 @@ update-changelog() {
 		error "AWK processing failed"
 	fi
 
+	if [[ "$DRY_RUN" == "true" ]]; then
+		note "→ $changelog_file would change:"
+		# `diff` reports 1 whenever the files differ, which is the whole point.
+		diff --unified=1 "$changelog_file" "$temp_file" | tail -n +3 || true
+		rm -f "$temp_file"
+		note "→ amend the version commit with $changelog_file, then tag $TAG_NAME"
+		run git push origin "$CURRENT_BRANCH"
+		run git push origin "refs/tags/$TAG_NAME"
+		return
+	fi
+
 	mv "$temp_file" "$changelog_file"
 
 	git add "$changelog_file" 2>/dev/null || true
@@ -178,9 +226,9 @@ publish_to_npm() {
 	fi
 
 	if [[ "${CI:-}" == "true" ]]; then
-		pnpm publish --provenance --access public --tag "$npm_tag"
+		run pnpm publish --provenance --access public --tag "$npm_tag"
 	else
-		pnpm publish --access public --tag "$npm_tag" --otp="$NPM_OTP"
+		run pnpm publish --access public --tag "$npm_tag" --otp="$NPM_OTP"
 	fi
 }
 
@@ -193,15 +241,21 @@ create_github_release() {
 		error "GitHub CLI not authenticated.\nRun 'gh auth login' or set GITHUB_TOKEN environment variable."
 	fi
 
-	echo "$RELEASE_DESCRIPTION" | gh release create "$TAG_NAME" \
-		--title "Release $TAG_NAME" \
-		--notes-file - \
-		$PRERELEASE_FLAG
+	if [[ "$DRY_RUN" == "true" ]]; then
+		note "→ gh release create $TAG_NAME --title \"Release $TAG_NAME\"${PRERELEASE_FLAG:+ $PRERELEASE_FLAG}"
+		note "  with these notes:"
+		echo "$RELEASE_DESCRIPTION"
+	else
+		echo "$RELEASE_DESCRIPTION" | gh release create "$TAG_NAME" \
+			--title "Release $TAG_NAME" \
+			--notes-file - \
+			$PRERELEASE_FLAG
+	fi
 
-	git fetch --all
-	git switch main
-	git rebase "$CURRENT_BRANCH"
-	git push origin main
+	run git fetch --all
+	run git switch main
+	run git rebase "$CURRENT_BRANCH"
+	run git push origin main
 }
 
 show_help() {
@@ -214,6 +268,7 @@ USAGE:
 OPTIONS:
     -h, --help     Show this help message
     -v, --version  Show current version
+    -n, --dry-run  Report what a release would do, changing nothing
 
 REQUIREMENTS:
     • Node.js
@@ -241,6 +296,7 @@ AUTHENTICATION:
 
 EXAMPLES:
     release-it                          # Interactive OTP
+    release-it --dry-run                # Preview without releasing
     GITHUB_TOKEN=... release-it         # With GitHub release
     gh auth login && release-it         # GitHub auth via CLI
 
@@ -258,12 +314,20 @@ main() {
 				jq -r '.version' package.json 2>/dev/null || echo "Version not found"
 				exit 0
 				;;
+			-n|--dry-run)
+				DRY_RUN=true
+				shift
+				;;
 			*)
 				show_help
 				error "Unknown option: $1"
 				;;
 		esac
 	done
+
+	if [[ "$DRY_RUN" == "true" ]]; then
+		note "Dry run — nothing will be written, pushed or published."
+	fi
 
 	validate_release_branch
 	setup_authentication
