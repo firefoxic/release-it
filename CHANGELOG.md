@@ -7,6 +7,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com), and 
 
 ## [Unreleased]
 
+## [5.2.0] — 2026–08–16
+
 ### Added
 
 - `--dry-run` flag (shorthand: `-n`) has been added. It walks through the whole release — branch check, version bump, changelog rewrite, npm tag and GitHub release notes — and reports what would happen without writing, pushing or publishing anything.
@@ -115,7 +117,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com), and 
 
 - The basic functionality of the `update-changelog` CLI utility.
 
-[Unreleased]: https://github.com/firefoxic/release-it/compare/v5.1.0...HEAD
+[Unreleased]: https://github.com/firefoxic/release-it/compare/v5.2.0...HEAD
+[5.2.0]: https://github.com/firefoxic/release-it/compare/v5.1.0...v5.2.0
 [5.1.0]: https://github.com/firefoxic/release-it/compare/v5.0.0...v5.1.0
 [5.0.0]: https://github.com/firefoxic/release-it/compare/v4.1.0...v5.0.0
 [4.1.0]: https://github.com/firefoxic/release-it/compare/v4.0.1...v4.1.0
