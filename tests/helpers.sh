@@ -83,14 +83,19 @@ setup_sandbox() {
 	GH_LOG="$SANDBOX/gh.log"
 	GH_NOTES="$SANDBOX/gh-notes.txt"
 	PUBLISH_LOG="$SANDBOX/publish.log"
+	LOGIN_LOG="$SANDBOX/login.log"
+	# The stubbed npm session: present means logged in, absent means not.
+	NPM_SESSION="$SANDBOX/npm-session"
 
-	export GH_LOG GH_NOTES PUBLISH_LOG REAL_PNPM
+	export GH_LOG GH_NOTES PUBLISH_LOG LOGIN_LOG NPM_SESSION REAL_PNPM
 	export GIT_CONFIG_GLOBAL="$SANDBOX/gitconfig"
 
 	: > "$GIT_CONFIG_GLOBAL"
 	: > "$GH_LOG"
 	: > "$GH_NOTES"
 	: > "$PUBLISH_LOG"
+	: > "$LOGIN_LOG"
+	printf 'tester\n' > "$NPM_SESSION"
 
 	write_stubs
 	export PATH="$SANDBOX/bin:$PATH"
@@ -98,8 +103,8 @@ setup_sandbox() {
 	[[ -n "${KEEP_SANDBOX:-}" ]] || trap 'rm -rf "$SANDBOX"' EXIT
 }
 
-# `gh` is replaced wholesale; `pnpm` only has `publish` intercepted, so that
-# the real version bumping logic stays under test.
+# `gh` is replaced wholesale; `pnpm` only has the registry commands
+# intercepted, so that the real version bumping logic stays under test.
 write_stubs() {
 	mkdir -p "$SANDBOX/bin"
 
@@ -112,14 +117,35 @@ write_stubs() {
 
 	cat > "$SANDBOX/bin/pnpm" <<-'STUB'
 		#!/usr/bin/env bash
-		if [[ "${1:-}" == "publish" ]]; then
-			printf '%s\n' "$*" >> "$PUBLISH_LOG"
-			exit 0
-		fi
+		case "${1:-}" in
+			publish)
+				printf '%s\n' "$*" >> "$PUBLISH_LOG"
+				exit 0
+				;;
+			whoami)
+				[[ -s "$NPM_SESSION" ]] || {
+					printf 'ERR_PNPM_AUTH_UNAUTHORIZED\n' >&2
+					exit 1
+				}
+				cat "$NPM_SESSION"
+				exit 0
+				;;
+			login)
+				printf '%s\n' "$*" >> "$LOGIN_LOG"
+				[[ "${NPM_LOGIN_FAILS:-}" == "true" ]] && exit 1
+				[[ "${NPM_LOGIN_IS_EMPTY:-}" == "true" ]] || printf 'tester\n' > "$NPM_SESSION"
+				exit 0
+				;;
+		esac
 		exec "$REAL_PNPM" "$@"
 	STUB
 
 	chmod +x "$SANDBOX/bin/gh" "$SANDBOX/bin/pnpm"
+}
+
+# Puts the sandbox in the state of a machine that never ran `pnpm login`.
+log_out_of_npm() {
+	: > "$NPM_SESSION"
 }
 
 # --- fixture repository -----------------------------------------------------
@@ -211,4 +237,8 @@ gh_args() {
 
 gh_notes() {
 	cat "$GH_NOTES"
+}
+
+login_attempts() {
+	cat "$LOGIN_LOG"
 }

@@ -7,6 +7,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com), and 
 
 ## [Unreleased]
 
+### Fixed
+
+- A local release now checks the npm session before it changes anything, and runs `pnpm login` when there is none. Previously an unauthenticated machine got as far as pushing the version commit, the tag and the release branch, and only then failed to publish — leaving the branch and the tag to be deleted by hand.
+
 ## [5.2.0] — 2026–08–16
 
 ### Added

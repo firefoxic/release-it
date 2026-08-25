@@ -64,19 +64,51 @@ validate_release_branch() {
 	fi
 }
 
+# The registry only turns an unauthenticated publish away at the very end of
+# the pipeline, once the version commit, the tag and the branch have already
+# been pushed — too late to retry without deleting them by hand. So the session
+# is opened here instead, before anything is written.
+ensure_npm_login() {
+	local user
+
+	if user=$(pnpm whoami 2>/dev/null) && [[ -n "$user" ]]; then
+		note "Logged in to npm as $user."
+		return
+	fi
+
+	if [[ "$DRY_RUN" == "true" ]]; then
+		note "→ pnpm login — no npm session was found"
+		return
+	fi
+
+	note "No npm session found — logging in first."
+	pnpm login || error "npm login failed. Run 'pnpm login', then release again."
+
+	user=$(pnpm whoami 2>/dev/null) || user=""
+	[[ -n "$user" ]] || error "npm login left no usable session. Run 'pnpm login', then release again."
+
+	note "Logged in to npm as $user."
+}
+
 setup_authentication() {
 	if [[ "${CI:-}" == "true" ]]; then
 		run git config --global user.email "actions@users.noreply.github.com"
 		run git config --global user.name "GitHub Actions"
-	elif [[ "$DRY_RUN" == "true" ]]; then
-		NPM_OTP="<otp>"
-	else
-		echo -n "Enter NPM_OTP: "
-		# -s keeps the one-time password off the screen; the newline the user
-		# typed is not echoed either, so it has to be printed here.
-		read -rs NPM_OTP
-		echo
+		return
 	fi
+
+	ensure_npm_login
+
+	if [[ "$DRY_RUN" == "true" ]]; then
+		NPM_OTP="<otp>"
+		return
+	fi
+
+	echo -n "Enter NPM_OTP: "
+	# -s keeps the one-time password off the screen; the newline the user
+	# typed is not echoed either, so it has to be printed here.
+	read -rs NPM_OTP
+	echo
 }
 
 detect_version_type() {
@@ -318,7 +350,8 @@ VERSION DETECTION:
     Keep a Changelog headings fold into these three.
 
 AUTHENTICATION:
-    • Local: Enter OTP interactively
+    • Local: Checks the npm session, runs 'pnpm login' when there is none,
+      then asks for an OTP — all before anything is committed or pushed
     • CI: Uses NPM trusted publishing
     • GitHub Release: Requires 'gh auth login' or GITHUB_TOKEN
 

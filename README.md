@@ -27,7 +27,9 @@ Publishing a new version of a package is a routine sequence of several step
 		# pnx @firefoxic/release-it
 		```
 
-	2. And enter OTP.
+	2. If the machine has no npm session, the script runs `pnpm login` before it touches
+		the repository, so a login that fails leaves nothing to clean up.
+	3. And enter OTP.
 
 - Preview
 
@@ -76,7 +78,7 @@ These three are the only headings the script recognises; any other one stops the
 #### Authentication
 
 - **CI/CD**: Uses NPM trusted publishing
-- **Local**: Interactive OTP prompt or `--otp` flag
+- **Local**: Checks the npm session up front, runs `pnpm login` when there is none, and only then asks for an OTP — all before the version commit, the tag and the branch exist
 - **GitHub**: Requires `gh auth login` or `GITHUB_TOKEN` environment variable
 
 #### Changelog restrictions

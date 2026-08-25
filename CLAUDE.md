@@ -30,16 +30,16 @@ There is no lint or build step.
 
 Pure Bash, zero dependencies, in [tests/](tests/). [tests/run.sh](tests/run.sh) discovers `tests/*.test.sh`, extracts every `test_*` function, and runs each one in its own process (`run.sh --one <file> <fn>`) with a fresh sandbox — so a failed assertion just exits non-zero.
 
-[tests/helpers.sh](tests/helpers.sh) builds the sandbox: a bare `origin`, a working clone with `package.json` + `CHANGELOG.md` at a given version and on a given branch, plus stubs on `PATH`. Only `gh` and `pnpm publish` are stubbed — `pnpm version` runs for real, so version bumping is genuinely under test. `GIT_CONFIG_GLOBAL` is redirected into the sandbox, because the script runs `git config --global` under CI.
+[tests/helpers.sh](tests/helpers.sh) builds the sandbox: a bare `origin`, a working clone with `package.json` + `CHANGELOG.md` at a given version and on a given branch, plus stubs on `PATH`. Only `gh` and pnpm's registry commands (`publish`, `whoami`, `login`) are stubbed — `pnpm version` runs for real, so version bumping is genuinely under test. The stubbed session is a file, `$NPM_SESSION`: it starts out populated, `log_out_of_npm` empties it, and `NPM_LOGIN_FAILS` / `NPM_LOGIN_IS_EMPTY` make the stubbed `pnpm login` fail. `GIT_CONFIG_GLOBAL` is redirected into the sandbox, because the script runs `git config --global` under CI.
 
 Two things the assertions depend on: the release heading uses a **non-breaking space** before the em dash (use `release_heading`, never a plain space), and `make_repo`'s third argument distinguishes unset (default entry) from empty (a changelog the script must reject).
 
 ## Release pipeline architecture
 
-`main` runs seven functions in a fixed order ([release-it.sh:266-272](release-it.sh#L266-L272)); each depends on globals set by earlier ones (`CURRENT_BRANCH`, `RELEASE_TYPE`, `PRERELEASE_SUFFIX`, `RELEASE_DESCRIPTION`, `VERSION_TYPE`, `TAG_NAME`, `PRERELEASE_FLAG`, declared at the top of the file). Reordering the calls breaks the script.
+`main` runs seven functions in a fixed order ([release-it.sh:393-399](release-it.sh#L393-L399)); each depends on globals set by earlier ones (`CURRENT_BRANCH`, `RELEASE_TYPE`, `PRERELEASE_SUFFIX`, `RELEASE_DESCRIPTION`, `VERSION_TYPE`, `TAG_NAME`, `PRERELEASE_FLAG`, declared at the top of the file). Reordering the calls breaks the script.
 
 1. **`validate_release_branch`** — the branch name is the only input for release type: `release` → stable, `release-` → unnamed prerelease, `release-<suffix>` → named prerelease with `PRERELEASE_SUFFIX=<suffix>`. Anything else is a hard error.
-2. **`setup_authentication`** — `CI=true` configures a bot git identity and relies on npm trusted publishing; otherwise it prompts for an OTP.
+2. **`setup_authentication`** — `CI=true` configures a bot git identity and relies on npm trusted publishing; otherwise `ensure_npm_login` checks `pnpm whoami`, runs `pnpm login` when there is no session, and then the OTP is prompted for. The login check lives here, in step 2, on purpose: the registry only refuses an unauthenticated publish in step 6, once the commit, the tag and the branch are already on the remote and can only be undone by hand. Under `--dry-run` a missing session is reported and no login is started.
 3. **`detect_version_type`** — parses the `## [Unreleased]` section of `CHANGELOG.md` with awk. Heading present in it decides the bump, checked in this precedence order: `### Changed` → major, `### Added` → minor, `### Fixed` → patch. The extracted text is reused verbatim as the GitHub release notes.
 
 	Those three are the *only* recognised headings and anything else is a hard error — a deliberate narrowing, not an oversight. `Removed` and `Deprecated` belong under `Changed`, `Security` under `Fixed` (the README explains why). Do not "complete" the Keep a Changelog set here.
