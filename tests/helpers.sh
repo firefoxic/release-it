@@ -90,6 +90,14 @@ setup_sandbox() {
 	export GH_LOG GH_NOTES PUBLISH_LOG LOGIN_LOG NPM_SESSION REAL_PNPM
 	export GIT_CONFIG_GLOBAL="$SANDBOX/gitconfig"
 
+	# The script switches to trusted publishing when it sees CI=true, which
+	# GitHub Actions sets for the test job itself. Tests that want the CI
+	# path opt in with `CI=true run_release_it`; everything else expects the
+	# local path. GITHUB_TOKEN is dropped for the same reason: with it set,
+	# the script skips `gh auth status`, and whether that call shows up in
+	# the gh log would depend on the machine running the tests.
+	unset CI GITHUB_TOKEN
+
 	: > "$GIT_CONFIG_GLOBAL"
 	: > "$GH_LOG"
 	: > "$GH_NOTES"

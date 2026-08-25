@@ -14,13 +14,14 @@ jobs:
   release:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
       - uses: pnpm/action-setup@v6
         with:
           version: latest
-          run_install: true
+      - run: pnpm ci
+      - run: pnpm test
       - run: ./release-it.sh # Instead, run `pnx @firefoxic/release-it` in your action
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Required for github releases

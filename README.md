@@ -2,6 +2,7 @@
 
 [![License: MIT][license-image]][license-url]
 [![Changelog][changelog-image]][changelog-url]
+[![Test Status][test-image]][test-url]
 
 A powerful release script that automates the entire release process including updating changelog, npm publishing (using `pnpm`) and GitHub releases.
 
@@ -97,3 +98,6 @@ These three are the only headings the script recognises; any other one stops the
 
 [changelog-url]: https://github.com/firefoxic/release-it/blob/main/CHANGELOG.md
 [changelog-image]: https://img.shields.io/badge/CHANGELOG-md-limegreen
+
+[test-url]: https://github.com/firefoxic/release-it/actions
+[test-image]: https://github.com/firefoxic/release-it/actions/workflows/test.yaml/badge.svg?branch=main

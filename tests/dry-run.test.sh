@@ -33,7 +33,8 @@ test_dry_run_neither_publishes_nor_releases() {
 	assert_succeeded
 
 	assert_eq "" "$(published_args)" "nothing is published"
-	assert_eq "" "$(gh_args)" "no GitHub release is created"
+	# `gh auth status` is a read-only check and is fine under a dry run.
+	assert_not_contains "$(gh_args)" "release" "no GitHub release is created"
 }
 
 test_dry_run_reports_the_next_version() {
