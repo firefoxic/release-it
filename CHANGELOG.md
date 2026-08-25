@@ -7,6 +7,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com), and 
 
 ## [Unreleased]
 
+## [5.2.1] — 2026–08–25
+
 ### Fixed
 
 - A local release now checks the npm session before it changes anything, and runs `pnpm login` when there is none. Previously an unauthenticated machine got as far as pushing the version commit, the tag and the release branch, and only then failed to publish — leaving the branch and the tag to be deleted by hand.
@@ -121,7 +123,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com), and 
 
 - The basic functionality of the `update-changelog` CLI utility.
 
-[Unreleased]: https://github.com/firefoxic/release-it/compare/v5.2.0...HEAD
+[Unreleased]: https://github.com/firefoxic/release-it/compare/v5.2.1...HEAD
+[5.2.1]: https://github.com/firefoxic/release-it/compare/v5.2.0...v5.2.1
 [5.2.0]: https://github.com/firefoxic/release-it/compare/v5.1.0...v5.2.0
 [5.1.0]: https://github.com/firefoxic/release-it/compare/v5.0.0...v5.1.0
 [5.0.0]: https://github.com/firefoxic/release-it/compare/v4.1.0...v5.0.0
