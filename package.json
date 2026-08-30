@@ -1,7 +1,7 @@
 {
 	"name": "@firefoxic/release-it",
 	"description": "Bump, publish and release new version for npm package using pnpm",
-	"version": "5.2.1",
+	"version": "6.0.0",
 	"license": "MIT",
 	"author": {
 		"name": "Sergey Artemov",
@@ -45,6 +45,5 @@
 		"changelog",
 		"git",
 		"github"
-	],
-	"devDependencies": {}
+	]
 }

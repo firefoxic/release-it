@@ -7,6 +7,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com), and 
 
 ## [Unreleased]
 
+## [6.0.0] — 2026–08–30
+
 ### Added
 
 - pnpm workspaces are now supported. When `pnpm-workspace.yaml` lists packages, every non-private package with entries under `[Unreleased]` in its own `CHANGELOG.md` is released — with its own version bump, a `<name>@<version>` tag, its own npm publish and its own GitHub release — all in one commit. Packages whose `[Unreleased]` section is empty are left alone, and the workspace root is never released. The `[Unreleased]` link of a package changelog has to point at the `<name>@<version>` tag.
@@ -134,7 +136,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com), and 
 
 - The basic functionality of the `update-changelog` CLI utility.
 
-[Unreleased]: https://github.com/firefoxic/release-it/compare/v5.2.1...HEAD
+[Unreleased]: https://github.com/firefoxic/release-it/compare/v6.0.0...HEAD
+[6.0.0]: https://github.com/firefoxic/release-it/compare/v5.2.1...v6.0.0
 [5.2.1]: https://github.com/firefoxic/release-it/compare/v5.2.0...v5.2.1
 [5.2.0]: https://github.com/firefoxic/release-it/compare/v5.1.0...v5.2.0
 [5.1.0]: https://github.com/firefoxic/release-it/compare/v5.0.0...v5.1.0
