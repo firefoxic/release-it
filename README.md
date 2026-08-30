@@ -56,7 +56,9 @@ Publishing a new version of a package is a routine sequence of several step
 
 The release script uses branch names to determine the release type:
 
-- **`release`** → Stable release (e.g., `1.0.0`)
+- **`release`** → Stable release (e.g., `1.1.0`)
+- **`release-first-major`** → The first major release, `1.0.0` (see below)
+- **`release-first-major-rc`** → A prerelease of it (e.g., `1.0.0-rc.1`); `release-first-major-` → a numbered one (e.g., `1.0.0-1`)
 - **`release-alpha`** → Alpha prerelease (e.g., `1.0.0-alpha.1`)
 - **`release-beta`** → Beta prerelease (e.g., `1.0.0-beta.1`)
 - **`release-rc`** → Release candidate (e.g., `1.0.0-rc.1`)
@@ -75,6 +77,14 @@ These three are the only headings the script recognises; any other one stops the
 - **`Removed`** → **`Changed`**. Taking functionality away is a change, and a breaking one.
 - **`Security`** → **`Fixed`**. Closing a vulnerability is a bug fix.
 - **`Deprecated`** → **`Changed`**. Semantic Versioning treats a deprecation as a minor change, but deprecation messages often force a change to an established workflow, and that is a major change by nature.
+
+#### Before 1.0.0
+
+While the package is below `1.0.0`, **`### Changed`** bumps the minor version, not the major one: `0.4.2` → `0.5.0`. Semantic Versioning reserves `0.y.z` for initial development, where anything may change at any time, so a breaking change there is expected and is not a reason to leave the range. The same cap applies to prereleases (`0.5.0-beta.0`, not `1.0.0-beta.0`).
+
+Reaching `1.0.0` is a deliberate decision, so it is made with a branch rather than a heading. Release from **`release-first-major`** and the version becomes `1.0.0` regardless of which headings the `[Unreleased]` section carries — it still has to be non-empty, since it becomes the release notes. The branch works only once: with the package already at `1.0.0` or above it refuses to run, and `release` takes over from there.
+
+The first major can be tried out first: `release-first-major-<name>` publishes `1.0.0-<name>.0`, `1.0.0-<name>.1`, … under the `<name>` dist-tag, and `release-first-major-` publishes `1.0.0-0`, `1.0.0-1`, … under `next` — exactly as `release-<name>` and `release-` do for any other version. Once such a prerelease is out, `release-first-major` turns it into `1.0.0`.
 
 #### Authentication
 
