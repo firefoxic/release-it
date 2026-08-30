@@ -54,3 +54,53 @@ test_dry_run_reports_the_first_major() {
 	assert_contains "$RELEASE_OUT" "0.4.2 → 1.0.0"
 	assert_eq "0.4.2" "$(package_version)"
 }
+
+test_first_major_named_prerelease_starts_a_new_track() {
+	release_from 0.4.2 release-first-major-alpha
+
+	assert_eq "1.0.0-alpha.0" "$(package_version)"
+	assert_contains "$(published_args)" "--tag alpha"
+	assert_contains "$(gh_args)" "--prerelease"
+}
+
+test_first_major_named_prerelease_increments_within_its_track() {
+	release_from 1.0.0-alpha.0 release-first-major-alpha
+
+	assert_eq "1.0.0-alpha.1" "$(package_version)"
+}
+
+test_first_major_named_prerelease_restarts_when_the_suffix_differs() {
+	release_from 1.0.0-alpha.1 release-first-major-rc
+
+	assert_eq "1.0.0-rc.0" "$(package_version)"
+}
+
+test_first_major_unnamed_prerelease_starts_a_new_track() {
+	release_from 0.4.2 release-first-major-
+
+	assert_eq "1.0.0-0" "$(package_version)"
+	assert_contains "$(published_args)" "--tag next"
+}
+
+test_first_major_unnamed_prerelease_increments_within_its_track() {
+	release_from 1.0.0-0 release-first-major-
+
+	assert_eq "1.0.0-1" "$(package_version)"
+}
+
+test_first_major_follows_its_own_prerelease() {
+	release_from 1.0.0-rc.2 release-first-major
+
+	assert_eq "1.0.0" "$(package_version)"
+	assert_contains "$(published_args)" "--tag latest"
+}
+
+test_first_major_prerelease_refuses_an_already_released_major() {
+	make_repo 1.2.3 release-first-major-rc
+
+	run_release_it
+
+	assert_failed
+	assert_contains "$RELEASE_ERR" "The first major version has already been released (1.2.3)"
+	assert_eq "1.2.3" "$(package_version)" "the version stays untouched"
+}

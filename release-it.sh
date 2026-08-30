@@ -55,18 +55,25 @@ validate_release_branch() {
 		error "Release can only be made from 'release*' branches. Current branch: $CURRENT_BRANCH"
 	fi
 
-	if [[ "$CURRENT_BRANCH" == "release" ]]; then
-		RELEASE_TYPE="stable"
-	elif [[ "$CURRENT_BRANCH" == "release-first-major" ]]; then
-		# Checked before the named-prerelease fallback, which would otherwise
-		# read this branch as a prerelease called “first-major”.
-		RELEASE_TYPE="stable"
+	local branch="$CURRENT_BRANCH"
+
+	# `release-first-major` is a stable 1.0.0; `release-first-major-<suffix>`
+	# and `release-first-major-` are its prereleases. The prefix is peeled off
+	# first, so that the rest is parsed like any other release branch — the
+	# fallback below would otherwise read it as a prerelease named
+	# “first-major”.
+	if [[ "$branch" == "release-first-major" ]] || [[ "$branch" == release-first-major-* ]]; then
 		FIRST_MAJOR=true
-	elif [[ "$CURRENT_BRANCH" == "release-" ]]; then
+		branch="release${branch#release-first-major}"
+	fi
+
+	if [[ "$branch" == "release" ]]; then
+		RELEASE_TYPE="stable"
+	elif [[ "$branch" == "release-" ]]; then
 		RELEASE_TYPE="unnamed"
 	else
 		RELEASE_TYPE="named"
-		PRERELEASE_SUFFIX="${CURRENT_BRANCH#release-}"
+		PRERELEASE_SUFFIX="${branch#release-}"
 	fi
 }
 
@@ -146,7 +153,8 @@ cap_version_type_below_first_major() {
 	major=${current_version%%.*}
 
 	if [[ "$FIRST_MAJOR" == "true" ]]; then
-		if [[ "$major" -ne 0 ]]; then
+		# A prerelease of 1.0.0 is still on the way there.
+		if [[ "$major" -ne 0 ]] && [[ ! "$current_version" =~ ^1\.0\.0- ]]; then
 			error "The first major version has already been released ($current_version). Release from the 'release' branch instead."
 		fi
 
@@ -173,11 +181,36 @@ preview_version() {
 	rm -rf "$sandbox"
 }
 
+# `pnpm version premajor` from a 1.0.0 prerelease would land on 2.0.0, so
+# the first major and its prerelease tracks are spelled out explicitly.
+first_major_bump() {
+	local current_version=$1
+
+	if [[ "$RELEASE_TYPE" == "stable" ]]; then
+		echo "1.0.0"
+	elif [[ "$RELEASE_TYPE" == "unnamed" ]]; then
+		if [[ "$current_version" =~ ^1\.0\.0-[0-9]+$ ]]; then
+			echo "prerelease"
+		else
+			echo "1.0.0-0"
+		fi
+	else
+		if [[ "$current_version" =~ ^1\.0\.0-${PRERELEASE_SUFFIX}\.[0-9]+$ ]]; then
+			echo "prerelease"
+		else
+			echo "1.0.0-$PRERELEASE_SUFFIX.0"
+		fi
+	fi
+}
+
 create_version() {
 	local current_version bump=()
 	current_version=$(package_version)
 
-	if [[ "$RELEASE_TYPE" == "stable" ]]; then
+	if [[ "$FIRST_MAJOR" == "true" ]]; then
+		bump=("$(first_major_bump "$current_version")")
+		[[ "$RELEASE_TYPE" == "stable" ]] && PRERELEASE_FLAG="" || PRERELEASE_FLAG="--prerelease"
+	elif [[ "$RELEASE_TYPE" == "stable" ]]; then
 		bump=("$VERSION_TYPE")
 		PRERELEASE_FLAG=""
 	elif [[ "$RELEASE_TYPE" == "unnamed" ]]; then
@@ -367,7 +400,8 @@ REQUIREMENTS:
 BRANCH REQUIREMENTS:
     • Must be on a branch starting with “release”
     • “release”       → stable release     (e.g., 1.1.0)
-    • “release-first-major” → the first major release (1.0.0)
+    • “release-first-major”       → the first major release (1.0.0)
+    • “release-first-major-<name>” → its prerelease (e.g., 1.0.0-rc.0)
     • “release-alpha” → prerelease         (e.g., 1.0.0-alpha.0)
     • “release-beta”  → prerelease         (e.g., 1.0.0-beta.0)
     • “release-rc”    → release candidate  (e.g., 1.0.0-rc.0)
@@ -380,8 +414,9 @@ VERSION DETECTION:
     • ### Fixed   → patch version bump
 
     Below 1.0.0, ### Changed bumps the minor version instead: breaking
-    changes are expected there. Cut 1.0.0 from “release-first-major”,
-    which bumps to the first major whatever the headings say.
+    changes are expected there. Cut 1.0.0 from “release-first-major”
+    (or its prereleases from “release-first-major-<name>”), which go to
+    the first major whatever the headings say.
 
     No other heading is recognised. See the README for how the remaining
     Keep a Changelog headings fold into these three.
