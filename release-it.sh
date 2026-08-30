@@ -9,6 +9,7 @@ RELEASE_DESCRIPTION=""
 VERSION_TYPE=""
 TAG_NAME=""
 PRERELEASE_FLAG=""
+FIRST_MAJOR=false
 DRY_RUN=false
 
 error() {
@@ -56,6 +57,11 @@ validate_release_branch() {
 
 	if [[ "$CURRENT_BRANCH" == "release" ]]; then
 		RELEASE_TYPE="stable"
+	elif [[ "$CURRENT_BRANCH" == "release-first-major" ]]; then
+		# Checked before the named-prerelease fallback, which would otherwise
+		# read this branch as a prerelease called “first-major”.
+		RELEASE_TYPE="stable"
+		FIRST_MAJOR=true
 	elif [[ "$CURRENT_BRANCH" == "release-" ]]; then
 		RELEASE_TYPE="unnamed"
 	else
@@ -126,6 +132,32 @@ detect_version_type() {
 		VERSION_TYPE="patch"
 	else
 		error "CHANGELOG.md Unreleased section is empty or does not follow the expected format."
+	fi
+
+	cap_version_type_below_first_major
+}
+
+# Reaching 1.0.0 is a decision, not a side effect of a changelog heading:
+# below it a breaking change is expected, so `### Changed` only bumps the
+# minor version, and the first major is cut from `release-first-major`.
+cap_version_type_below_first_major() {
+	local current_version major
+	current_version=$(package_version)
+	major=${current_version%%.*}
+
+	if [[ "$FIRST_MAJOR" == "true" ]]; then
+		if [[ "$major" -ne 0 ]]; then
+			error "The first major version has already been released ($current_version). Release from the 'release' branch instead."
+		fi
+
+		VERSION_TYPE="major"
+		note "Releasing the first major version from '$CURRENT_BRANCH'."
+		return
+	fi
+
+	if [[ "$major" -eq 0 ]] && [[ "$VERSION_TYPE" == "major" ]]; then
+		VERSION_TYPE="minor"
+		note "Bumping the minor version instead of the major one: $current_version is below 1.0.0. Release from 'release-first-major' to cut 1.0.0."
 	fi
 }
 
@@ -334,7 +366,8 @@ REQUIREMENTS:
 
 BRANCH REQUIREMENTS:
     • Must be on a branch starting with “release”
-    • “release”       → stable release     (e.g., 1.0.0)
+    • “release”       → stable release     (e.g., 1.1.0)
+    • “release-first-major” → the first major release (1.0.0)
     • “release-alpha” → prerelease         (e.g., 1.0.0-alpha.0)
     • “release-beta”  → prerelease         (e.g., 1.0.0-beta.0)
     • “release-rc”    → release candidate  (e.g., 1.0.0-rc.0)
@@ -345,6 +378,10 @@ VERSION DETECTION:
     • ### Changed → major version bump
     • ### Added   → minor version bump
     • ### Fixed   → patch version bump
+
+    Below 1.0.0, ### Changed bumps the minor version instead: breaking
+    changes are expected there. Cut 1.0.0 from “release-first-major”,
+    which bumps to the first major whatever the headings say.
 
     No other heading is recognised. See the README for how the remaining
     Keep a Changelog headings fold into these three.

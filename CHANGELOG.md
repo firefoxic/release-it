@@ -7,6 +7,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com), and 
 
 ## [Unreleased]
 
+### Added
+
+- Below `1.0.0`, `### Changed` now bumps the minor version instead of the major one, for stable releases and prereleases alike: breaking changes are expected during initial development and should not push the package out of the `0.x` range on their own.
+- `release-first-major` branch has been added to cut `1.0.0`. It bumps to the first major version whatever the `[Unreleased]` headings say, and refuses to run once the package is at `1.0.0` or above.
+
 ## [5.2.1] — 2026–08–25
 
 ### Fixed
