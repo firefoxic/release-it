@@ -38,3 +38,15 @@ test_rejects_an_unsupported_unreleased_heading() {
 	assert_contains "$RELEASE_ERR" "does not follow the expected format"
 	assert_eq "1.2.3" "$(package_version)" "the version stays untouched"
 }
+
+test_rejects_a_dirty_working_tree() {
+	make_repo 1.2.3 release
+	printf 'scratch\n' > notes.txt
+
+	run_release_it
+
+	assert_failed
+	assert_contains "$RELEASE_ERR" "working tree is not clean"
+	assert_eq "1.2.3" "$(package_version)"
+	assert_eq "" "$(published_args)"
+}

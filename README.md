@@ -86,6 +86,21 @@ Reaching `1.0.0` is a deliberate decision, so it is made with a branch rather th
 
 The first major can be tried out first: `release-first-major-<name>` publishes `1.0.0-<name>.0`, `1.0.0-<name>.1`, … under the `<name>` dist-tag, and `release-first-major-` publishes `1.0.0-0`, `1.0.0-1`, … under `next` — exactly as `release-<name>` and `release-` do for any other version. Once such a prerelease is out, `release-first-major` turns it into `1.0.0`.
 
+#### pnpm workspaces
+
+A repository whose `pnpm-workspace.yaml` lists packages is treated as a monorepo; nothing has to be switched on. Only pnpm workspaces are supported — the script relies on pnpm for everything else, too.
+
+- Every workspace package keeps its own `CHANGELOG.md`, in the same format as a single package would. The root does not need one.
+- Every non-private package with entries under `[Unreleased]` is released; a package whose `[Unreleased]` section is empty is left alone. Each released package gets its own bump from its own headings, so the versions stay independent.
+- The whole release is one commit — every bumped `package.json` together with every rewritten `CHANGELOG.md` — with one tag per package, named **`<name>@<version>`** (`widget@1.3.0`, `@acme/widget@1.3.0`): a plain `v1.3.0` could not say which package it belongs to. The `[Unreleased]` link of a package changelog therefore points at such a tag:
+
+	```md
+	[Unreleased]: https://github.com/<user-name>/<project-name>/compare/<package-name>@0.0.1...HEAD
+	```
+
+- Each package is published to npm and gets a GitHub release of its own, with its changelog entries as the notes.
+- The release branch applies to all of them: `release-beta` makes a beta of every package being released, and `release-first-major` takes every one of them to `1.0.0` — and refuses to run if any of them is already there.
+
 #### Authentication
 
 - **CI/CD**: Uses NPM trusted publishing

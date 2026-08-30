@@ -9,8 +9,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com), and 
 
 ### Added
 
+- pnpm workspaces are now supported. When `pnpm-workspace.yaml` lists packages, every non-private package with entries under `[Unreleased]` in its own `CHANGELOG.md` is released — with its own version bump, a `<name>@<version>` tag, its own npm publish and its own GitHub release — all in one commit. Packages whose `[Unreleased]` section is empty are left alone, and the workspace root is never released. The `[Unreleased]` link of a package changelog has to point at the `<name>@<version>` tag.
 - Below `1.0.0`, `### Changed` now bumps the minor version instead of the major one, for stable releases and prereleases alike: breaking changes are expected during initial development and should not push the package out of the `0.x` range on their own.
 - `release-first-major` branch has been added to cut `1.0.0`. It bumps to the first major version whatever the `[Unreleased]` headings say, and refuses to run once the package is at `1.0.0` or above. Its prereleases come from `release-first-major-<name>` (`1.0.0-<name>.0`, …) and `release-first-major-` (`1.0.0-0`, …), just like the prereleases of any other version.
+
+### Fixed
+
+- A changelog that cannot be rewritten no longer leaves a version commit and a tag behind: the version is now committed together with the changelog, so a failed rewrite takes the bump back and leaves the working tree as it was.
+- A release from a dirty working tree is now refused up front, with a message saying so. Previously `pnpm version` refused it, less clearly, after the OTP had already been entered.
 
 ## [5.2.1] — 2026–08–25
 

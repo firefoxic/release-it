@@ -119,15 +119,19 @@ write_stubs() {
 	cat > "$SANDBOX/bin/gh" <<-'STUB'
 		#!/usr/bin/env bash
 		printf '%s\n' "$*" >> "$GH_LOG"
-		[[ "${1:-}" == "release" ]] && cat > "$GH_NOTES"
+		# Appended, not overwritten: a workspace release makes several.
+		[[ "${1:-}" == "release" ]] && cat >> "$GH_NOTES"
 		exit 0
 	STUB
 
 	cat > "$SANDBOX/bin/pnpm" <<-'STUB'
 		#!/usr/bin/env bash
+		args=("$@")
+		# The script addresses workspace packages with `pnpm -C <dir> …`.
+		[[ "${1:-}" == "-C" ]] && shift 2
 		case "${1:-}" in
 			publish)
-				printf '%s\n' "$*" >> "$PUBLISH_LOG"
+				printf '%s\n' "${args[*]}" >> "$PUBLISH_LOG"
 				exit 0
 				;;
 			whoami)
@@ -145,7 +149,7 @@ write_stubs() {
 				exit 0
 				;;
 		esac
-		exec "$REAL_PNPM" "$@"
+		exec "$REAL_PNPM" "${args[@]}"
 	STUB
 
 	chmod +x "$SANDBOX/bin/gh" "$SANDBOX/bin/pnpm"
@@ -195,8 +199,10 @@ write_package_json() {
 	printf '{\n\t"name": "widget",\n\t"version": "%s",\n\t"license": "MIT"\n}\n' "$1" > package.json
 }
 
+# The third argument is the tag prefix of the compare link: `v` for a single
+# package, `<name>@` for a workspace package.
 write_changelog() {
-	local previous=$1 unreleased=$2
+	local previous=$1 unreleased=$2 tag_prefix=${3:-v}
 
 	{
 		printf '# Changelog\n\n'
@@ -204,9 +210,60 @@ write_changelog() {
 		[[ -n "$unreleased" ]] && printf '%s\n\n' "$unreleased"
 		printf '## [%s]%s%s 2026%s01%s01\n\n' "$previous" "$NBSP" "$EM_DASH" "$EN_DASH" "$EN_DASH"
 		printf '### Fixed\n\n- An older fix.\n\n'
-		printf '[Unreleased]: https://github.com/acme/widget/compare/v%s...HEAD\n' "$previous"
-		printf '[%s]: https://github.com/acme/widget/releases/tag/v%s\n' "$previous" "$previous"
+		printf '[Unreleased]: https://github.com/acme/widget/compare/%s%s...HEAD\n' "$tag_prefix" "$previous"
+		printf '[%s]: https://github.com/acme/widget/releases/tag/%s%s\n' "$previous" "$tag_prefix" "$previous"
 	} > CHANGELOG.md
+}
+
+# --- fixture workspace ------------------------------------------------------
+
+# A pnpm workspace is built in three moves: `make_workspace` lays down the
+# private root, `add_package` adds one package at a time, and
+# `finish_workspace` commits, tags and checks out the release branch.
+make_workspace() {
+	git init -q --bare -b main "$ORIGIN"
+	git init -q -b main "$WORK"
+	cd "$WORK" || bail "cannot enter $WORK"
+
+	git config user.email "tester@example.com"
+	git config user.name "Tester"
+	git remote add origin "$ORIGIN"
+
+	printf '{\n\t"name": "monorepo",\n\t"private": true\n}\n' > package.json
+	printf 'packages:\n  - packages/*\ngitChecks: false\n' > pnpm-workspace.yaml
+	WORKSPACE_TAGS=()
+}
+
+# add_package <dir> <name> <version> [unreleased] [private]
+add_package() {
+	local dir=$1 name=$2 version=$3
+	local unreleased=${4-$'### Added\n\n- A brand new thing.'}
+	local private=${5:-false}
+
+	mkdir -p "$dir"
+	(
+		cd "$dir" || bail "cannot enter $dir"
+		printf '{\n\t"name": "%s",\n\t"version": "%s",\n\t"license": "MIT",\n\t"private": %s\n}\n' "$name" "$version" "$private" > package.json
+		write_changelog "$version" "$unreleased" "$name@"
+	)
+	WORKSPACE_TAGS+=("$name@$version")
+}
+
+finish_workspace() {
+	local branch=${1:-release} tag
+
+	git add -A
+	git commit -qm "Initial commit"
+	for tag in "${WORKSPACE_TAGS[@]}"; do
+		git tag "$tag"
+	done
+	git push -q -u origin main
+	git push -q origin --tags
+
+	if [[ "$branch" != "main" ]]; then
+		git switch -qc "$branch"
+		git push -q -u origin "$branch"
+	fi
 }
 
 # --- running the script -----------------------------------------------------
