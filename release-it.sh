@@ -399,14 +399,14 @@ REQUIREMENTS:
 
 BRANCH REQUIREMENTS:
     • Must be on a branch starting with “release”
-    • “release”       → stable release     (e.g., 1.1.0)
-    • “release-first-major”       → the first major release (1.0.0)
-    • “release-first-major-<name>” → its prerelease (e.g., 1.0.0-rc.0)
-    • “release-alpha” → prerelease         (e.g., 1.0.0-alpha.0)
-    • “release-beta”  → prerelease         (e.g., 1.0.0-beta.0)
-    • “release-rc”    → release candidate  (e.g., 1.0.0-rc.0)
+    • “release”                    → stable release          (e.g., 1.1.0)
+    • “release-first-major”        → the first major release (1.0.0)
+    • “release-first-major-<name>” → its prerelease          (e.g., 1.0.0-rc.0)
+    • “release-alpha”              → prerelease              (e.g., 1.0.0-alpha.0)
+    • “release-beta”               → prerelease              (e.g., 1.0.0-beta.0)
+    • “release-rc”                 → release candidate       (e.g., 1.0.0-rc.0)
     • or another prerelease name, even...
-    • “release-”      → unnamed prerelease (e.g., 1.0.0-0)
+    • “release-”                   → unnamed prerelease      (e.g., 1.0.0-0)
 
 VERSION DETECTION:
     • ### Changed → major version bump
