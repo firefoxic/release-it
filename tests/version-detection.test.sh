@@ -29,3 +29,18 @@ test_added_outranks_fixed() {
 
 	assert_eq "1.3.0" "$(package_version)"
 }
+
+test_a_heading_mentioned_inside_an_entry_does_not_count() {
+	release_from 1.2.3 release $'### Added\n\n- The `### Changed` heading is now explained in the README.'
+
+	assert_eq "1.3.0" "$(package_version)"
+}
+
+test_a_heading_with_trailing_text_does_not_count() {
+	make_repo 1.2.3 release $'### Changed things\n\n- A change.'
+
+	run_release_it
+
+	assert_failed
+	assert_contains "$RELEASE_ERR" "does not follow the expected format"
+}

@@ -203,11 +203,13 @@ detect_version_type() {
 		if [[ -z "$notes" ]]; then
 			[[ "$MONOREPO" == "true" ]] || error "No changes found in CHANGELOG.md [Unreleased] section"
 			continue
-		elif echo "$notes" | grep -q '### Changed'; then
+		# Anchored to whole lines: an entry may well *mention* a heading, as
+		# in “`### Changed` now bumps the minor version”.
+		elif echo "$notes" | grep -qx '### Changed'; then
 			type="major"
-		elif echo "$notes" | grep -q '### Added'; then
+		elif echo "$notes" | grep -qx '### Added'; then
 			type="minor"
-		elif echo "$notes" | grep -q '### Fixed'; then
+		elif echo "$notes" | grep -qx '### Fixed'; then
 			type="patch"
 		else
 			error "$changelog Unreleased section is empty or does not follow the expected format."

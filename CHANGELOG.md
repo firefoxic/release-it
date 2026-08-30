@@ -7,6 +7,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com), and 
 
 ## [Unreleased]
 
+### Fixed
+
+- A changelog entry that merely mentions a heading, such as “`### Changed` now bumps the minor version”, no longer counts as that heading. Previously such an entry under `### Added` made the release a major one — which is how `6.0.0` came to be, with no breaking changes in it. Only a whole line reading `### Changed`, `### Added` or `### Fixed` decides the bump now.
+
 ## [6.0.0] — 2026–08–30
 
 ### Added
