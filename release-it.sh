@@ -343,10 +343,11 @@ create_version() {
 
 # Inserts the release heading below [Unreleased] and moves the compare link
 # along, deriving the base URL and the previous version from that link.
+# The heading date is the fourth argument when given — the tests pin it.
 render_changelog() {
-	local changelog_file=$1 version=$2 tag_prefix=$3
+	local changelog_file=$1 version=$2 tag_prefix=$3 date=${4:-$(date '+%Y–%m–%d')}
 
-	awk -v version="$version" -v tag_prefix="$tag_prefix" -v date="$(date '+%Y–%m–%d')" '
+	awk -v version="$version" -v tag_prefix="$tag_prefix" -v date="$date" '
 	BEGIN {
 		found_unreleased_header = 0
 		found_unreleased_link = 0
@@ -632,4 +633,6 @@ main() {
 	create_github_release
 }
 
-main "$@"
+# Sourcing the file loads the functions without starting a release — the
+# unit tests call render_changelog directly.
+[[ "${BASH_SOURCE[0]}" != "$0" ]] || main "$@"
