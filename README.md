@@ -40,6 +40,8 @@ Publishing a new version of a package is a routine sequence of several step
 	pnpm dlx @firefoxic/release-it --dry-run
 	```
 
+The very first publish of a new package has to be run locally: trusted publishing is set up on npmjs.com per package, so there is nothing to configure until a version exists, and an OTP cannot be entered on a runner. Once the first version is out and trusted publishing is enabled, later releases can go through CI as usual.
+
 ### Requirements
 
 - [**pnpm**](https://pnpm.io/installation#on-posix-systems)
