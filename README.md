@@ -94,6 +94,8 @@ A prerelease is committed differently from a stable release, so that its branch 
 
 That is what makes the next prerelease work without any manual cleanup: the manifest is already on `1.3.0-beta.0`, so the next `release-beta` publishes `1.3.0-beta.1`, and `[Unreleased]` still has the content to pick the bump from. `main` is rebased onto the rolled-back branch and pushed with it.
 
+Because the tag sits one commit ahead of the rolled-back branch, a plain `git fetch origin` does not pick it up — it only follows tags that point into the fetched branch history. Fetch it with `git fetch --tags`, or a single tag with `git fetch origin tag v1.3.0-beta.0`.
+
 #### pnpm workspaces
 
 A repository whose `pnpm-workspace.yaml` lists packages is treated as a monorepo; nothing has to be switched on. Only pnpm workspaces are supported — the script relies on pnpm for everything else, too.
