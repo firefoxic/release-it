@@ -441,11 +441,20 @@ update-changelog() {
 			diff --unified=1 "${changelog_files[$i]}" "${temp_files[$i]}" | tail -n +3 || true
 			rm -f "${temp_files[$i]}"
 		done
-		note "→ commit the version bump with ${changelog_files[*]}, then tag ${PKG_TAGS[*]}"
-		run git push origin "$CURRENT_BRANCH"
-		for i in "${!PKG_DIRS[@]}"; do
-			run git push origin "refs/tags/${PKG_TAGS[$i]}"
-		done
+		if [[ -n "$PRERELEASE_FLAG" ]]; then
+			note "→ commit the version bump with ${package_files[*]}"
+			note "→ commit the changelog with ${changelog_files[*]}, then tag ${PKG_TAGS[*]}"
+			note "→ after the release, roll the branches back to the version bump"
+			for i in "${!PKG_DIRS[@]}"; do
+				run git push origin "refs/tags/${PKG_TAGS[$i]}"
+			done
+		else
+			note "→ commit the version bump with ${changelog_files[*]}, then tag ${PKG_TAGS[*]}"
+			run git push origin "$CURRENT_BRANCH"
+			for i in "${!PKG_DIRS[@]}"; do
+				run git push origin "refs/tags/${PKG_TAGS[$i]}"
+			done
+		fi
 		return
 	fi
 
@@ -460,6 +469,30 @@ update-changelog() {
 		message=${message//,/, }
 	else
 		message=${PKG_VERSIONS[0]}
+	fi
+
+	if [[ -n "$PRERELEASE_FLAG" ]]; then
+		# A prerelease is split in two so the version bump can survive on its
+		# own: the branch is rolled back to it after the release, which leaves
+		# the manifest on the prerelease version and the changelog untouched —
+		# exactly what the next prerelease needs. The tag keeps the changelog
+		# commit alive. Only the tags are pushed here; the branch follows once
+		# the release is out (see create_github_release).
+		git add "${package_files[@]}"
+		git commit -m "$message" -n
+		git add "${changelog_files[@]}"
+		git commit -m "Update CHANGELOG.md" -n
+		for i in "${!PKG_DIRS[@]}"; do
+			git tag "${PKG_TAGS[$i]}"
+		done
+		for i in "${!PKG_DIRS[@]}"; do
+			if git ls-remote --exit-code --tags origin "refs/tags/${PKG_TAGS[$i]}" >/dev/null; then
+				git push --force origin "refs/tags/${PKG_TAGS[$i]}"
+			else
+				git push origin "refs/tags/${PKG_TAGS[$i]}"
+			fi
+		done
+		return
 	fi
 
 	git add "${package_files[@]}" "${changelog_files[@]}"
@@ -528,9 +561,22 @@ create_github_release() {
 	done
 
 	run git fetch --all
-	run git switch main
-	run git rebase "$CURRENT_BRANCH"
-	run git push origin main
+
+	if [[ -n "$PRERELEASE_FLAG" ]]; then
+		# Roll the prerelease branch back to the version bump and rebase main
+		# onto it. The tag keeps the changelog commit, so the release is still
+		# reachable — while the branch carries the prerelease version and an
+		# untouched changelog, ready for the next prerelease.
+		run git reset --hard HEAD~1
+		run git switch main
+		run git rebase "$CURRENT_BRANCH"
+		run git push origin "$CURRENT_BRANCH"
+		run git push origin main
+	else
+		run git switch main
+		run git rebase "$CURRENT_BRANCH"
+		run git push origin main
+	fi
 }
 
 show_help() {

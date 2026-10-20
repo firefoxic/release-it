@@ -149,6 +149,19 @@ test_a_prerelease_branch_applies_to_every_package() {
 	assert_contains "$(gh_args)" "release create gadget@0.4.1-beta.0 --title Release gadget@0.4.1-beta.0 --notes-file - --prerelease"
 }
 
+test_a_prerelease_leaves_the_workspace_ready_for_the_next_one() {
+	two_packages release-beta
+	run_release_it
+	assert_succeeded
+
+	assert_eq "1.3.0-beta.0" "$(pnpm -C packages/widget pkg get version)"
+	assert_eq "0.4.1-beta.0" "$(pnpm -C packages/gadget pkg get version)"
+	assert_contains "$(cat packages/widget/CHANGELOG.md)" "## [Unreleased]"
+	assert_not_contains "$(cat packages/widget/CHANGELOG.md)" "$(release_heading 1.3.0-beta.0)"
+	assert_eq "$(git rev-parse release-beta)" "$(git rev-parse origin/release-beta)"
+	assert_eq "$(git rev-parse release-beta)" "$(git rev-parse "widget@1.3.0-beta.0^")"
+}
+
 test_first_major_is_cut_for_every_package() {
 	make_workspace
 	add_package packages/widget widget 0.9.0

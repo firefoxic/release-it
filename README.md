@@ -88,13 +88,19 @@ Reaching `1.0.0` is a deliberate decision, so it is made with a branch rather th
 
 The first major can be tried out first: `release-first-major-<name>` publishes `1.0.0-<name>.0`, `1.0.0-<name>.1`, … under the `<name>` dist-tag, and `release-first-major-` publishes `1.0.0-0`, `1.0.0-1`, … under `next` — exactly as `release-<name>` and `release-` do for any other version. Once such a prerelease is out, `release-first-major` turns it into `1.0.0`.
 
+#### Prereleases
+
+A prerelease is committed differently from a stable release, so that its branch is immediately ready for the next one. The version bump and the `CHANGELOG.md` update are two separate commits — the bump first — and after the npm publish and the GitHub release the branch is rolled back to the version bump. The manifest therefore keeps the prerelease version while `[Unreleased]` is left exactly as it was, with the entries that went into the prerelease still in it. The version tag is left where it is, on the changelog commit, so the release stays reachable; only the branch moves back.
+
+That is what makes the next prerelease work without any manual cleanup: the manifest is already on `1.3.0-beta.0`, so the next `release-beta` publishes `1.3.0-beta.1`, and `[Unreleased]` still has the content to pick the bump from. `main` is rebased onto the rolled-back branch and pushed with it.
+
 #### pnpm workspaces
 
 A repository whose `pnpm-workspace.yaml` lists packages is treated as a monorepo; nothing has to be switched on. Only pnpm workspaces are supported — the script relies on pnpm for everything else, too.
 
 - Every workspace package keeps its own `CHANGELOG.md`, in the same format as a single package would. The root does not need one.
 - Every non-private package with entries under `[Unreleased]` is released; a package whose `[Unreleased]` section is empty is left alone. Each released package gets its own bump from its own headings, so the versions stay independent.
-- The whole release is one commit — every bumped `package.json` together with every rewritten `CHANGELOG.md` — with one tag per package, named **`<name>@<version>`** (`widget@1.3.0`, `@acme/widget@1.3.0`): a plain `v1.3.0` could not say which package it belongs to. The `[Unreleased]` link of a package changelog therefore points at such a tag:
+- A stable release is one commit — every bumped `package.json` together with every rewritten `CHANGELOG.md` — while a prerelease is split and rolled back as described above. Either way there is one tag per package, named **`<name>@<version>`** (`widget@1.3.0`, `@acme/widget@1.3.0`): a plain `v1.3.0` could not say which package it belongs to. The `[Unreleased]` link of a package changelog therefore points at such a tag:
 
 	```md
 	[Unreleased]: https://github.com/<user-name>/<project-name>/compare/<package-name>@0.0.1...HEAD

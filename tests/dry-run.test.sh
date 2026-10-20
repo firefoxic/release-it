@@ -59,6 +59,17 @@ test_dry_run_reports_a_prerelease() {
 	assert_contains "$RELEASE_OUT" "--prerelease"
 }
 
+test_dry_run_reports_a_prerelease_as_two_commits() {
+	make_repo 1.2.3 release-beta
+
+	run_release_it --dry-run
+	assert_succeeded
+
+	assert_contains "$RELEASE_OUT" "→ commit the version bump with ./package.json"
+	assert_contains "$RELEASE_OUT" "→ commit the changelog with CHANGELOG.md, then tag v1.3.0-beta.0"
+	assert_contains "$RELEASE_OUT" "→ after the release, roll the branches back to the version bump"
+}
+
 test_dry_run_shows_the_changelog_diff() {
 	make_repo 1.2.3 release
 

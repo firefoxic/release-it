@@ -7,6 +7,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com), and 
 
 ## [Unreleased]
 
+### Fixed
+
+- A prerelease no longer leaves its branch unable to cut the next one. The version bump and the `CHANGELOG.md` update are now two separate commits — the bump first — and after the npm publish and the GitHub release the branch is rolled back to the bump. The manifest keeps the prerelease version while `[Unreleased]` is left untouched, so the next prerelease bumps from there instead of finding an empty section or re-publishing an existing version. The version tag stays on the changelog commit, keeping the release reachable.
+
 ## [6.0.1] — 2026–08–30
 
 ### Fixed
