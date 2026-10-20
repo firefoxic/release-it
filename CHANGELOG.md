@@ -7,6 +7,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com), and 
 
 ## [Unreleased]
 
+## [6.0.2] — 2026–10–20
+
 ### Fixed
 
 - A prerelease no longer leaves its branch unable to cut the next one. The version bump and the `CHANGELOG.md` update are now two separate commits — the bump first — and after the npm publish and the GitHub release the branch is rolled back to the bump. The manifest keeps the prerelease version while `[Unreleased]` is left untouched, so the next prerelease bumps from there instead of finding an empty section or re-publishing an existing version. The version tag stays on the changelog commit, keeping the release reachable. Since the tag then sits one commit ahead of the rolled-back branch, a plain `git fetch origin` does not fetch it — use `git fetch --tags`.
@@ -146,7 +148,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com), and 
 
 - The basic functionality of the `update-changelog` CLI utility.
 
-[Unreleased]: https://github.com/firefoxic/release-it/compare/v6.0.1...HEAD
+[Unreleased]: https://github.com/firefoxic/release-it/compare/v6.0.2...HEAD
+[6.0.2]: https://github.com/firefoxic/release-it/compare/v6.0.1...v6.0.2
 [6.0.1]: https://github.com/firefoxic/release-it/compare/v6.0.0...v6.0.1
 [6.0.0]: https://github.com/firefoxic/release-it/compare/v5.2.1...v6.0.0
 [5.2.1]: https://github.com/firefoxic/release-it/compare/v5.2.0...v5.2.1
