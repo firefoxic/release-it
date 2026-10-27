@@ -7,6 +7,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com), and 
 
 ## [Unreleased]
 
+## [6.1.0] — 2026–10–27
+
 ### Added
 
 - A `tag` setting in `.npmrc` is now honoured for prereleases: when present, its value is passed to `pnpm publish` as `--tag`, so several differently suffixed prereleases (alpha, beta, rc, …) can share one dist-tag. The version keeps its branch suffix regardless. `.npmrc` is also ignored by the dirty-working-tree check, so a local `.npmrc` no longer blocks a release.
@@ -156,7 +158,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com), and 
 
 - The basic functionality of the `update-changelog` CLI utility.
 
-[Unreleased]: https://github.com/firefoxic/release-it/compare/v6.0.2...HEAD
+[Unreleased]: https://github.com/firefoxic/release-it/compare/v6.1.0...HEAD
+[6.1.0]: https://github.com/firefoxic/release-it/compare/v6.0.2...v6.1.0
 [6.0.2]: https://github.com/firefoxic/release-it/compare/v6.0.1...v6.0.2
 [6.0.1]: https://github.com/firefoxic/release-it/compare/v6.0.0...v6.0.1
 [6.0.0]: https://github.com/firefoxic/release-it/compare/v5.2.1...v6.0.0
