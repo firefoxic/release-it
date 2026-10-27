@@ -7,6 +7,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com), and 
 
 ## [Unreleased]
 
+### Fixed
+
+- A prerelease no longer rebases and pushes `main`. The release branch is rolled back to the version bump and pushed on its own, while `main` is left untouched, so a prerelease branch stays separate from `main` and is merged back by hand.
+
 ## [6.0.2] — 2026–10–20
 
 ### Fixed

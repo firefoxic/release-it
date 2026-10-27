@@ -92,7 +92,7 @@ The first major can be tried out first: `release-first-major-<name>` publishes `
 
 A prerelease is committed differently from a stable release, so that its branch is immediately ready for the next one. The version bump and the `CHANGELOG.md` update are two separate commits — the bump first — and after the npm publish and the GitHub release the branch is rolled back to the version bump. The manifest therefore keeps the prerelease version while `[Unreleased]` is left exactly as it was, with the entries that went into the prerelease still in it. The version tag is left where it is, on the changelog commit, so the release stays reachable; only the branch moves back.
 
-That is what makes the next prerelease work without any manual cleanup: the manifest is already on `1.3.0-beta.0`, so the next `release-beta` publishes `1.3.0-beta.1`, and `[Unreleased]` still has the content to pick the bump from. `main` is rebased onto the rolled-back branch and pushed with it.
+That is what makes the next prerelease work without any manual cleanup: the manifest is already on `1.3.0-beta.0`, so the next `release-beta` publishes `1.3.0-beta.1`, and `[Unreleased]` still has the content to pick the bump from. The release branch is pushed on its own; `main` is left untouched, so a prerelease branch stays separate from `main` and is merged back by hand.
 
 Because the tag sits one commit ahead of the rolled-back branch, a plain `git fetch origin` does not pick it up — it only follows tags that point into the fetched branch history. Fetch it with `git fetch --tags`, or a single tag with `git fetch origin tag v1.3.0-beta.0`.
 

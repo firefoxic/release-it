@@ -563,15 +563,13 @@ create_github_release() {
 	run git fetch --all
 
 	if [[ -n "$PRERELEASE_FLAG" ]]; then
-		# Roll the prerelease branch back to the version bump and rebase main
-		# onto it. The tag keeps the changelog commit, so the release is still
-		# reachable — while the branch carries the prerelease version and an
-		# untouched changelog, ready for the next prerelease.
+		# Roll the prerelease branch back to the version bump. The tag keeps
+		# the changelog commit, so the release is still reachable — while the
+		# branch carries the prerelease version and an untouched changelog,
+		# ready for the next prerelease. main is not touched here: prerelease
+		# branches are kept separate from main and only merged back by hand.
 		run git reset --hard HEAD~1
-		run git switch main
-		run git rebase "$CURRENT_BRANCH"
 		run git push origin "$CURRENT_BRANCH"
-		run git push origin main
 	else
 		run git switch main
 		run git rebase "$CURRENT_BRANCH"
