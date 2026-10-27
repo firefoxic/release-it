@@ -7,6 +7,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com), and 
 
 ## [Unreleased]
 
+### Added
+
+- A `tag` setting in `.npmrc` is now honoured for prereleases: when present, its value is passed to `pnpm publish` as `--tag`, so several differently suffixed prereleases (alpha, beta, rc, …) can share one dist-tag. The version keeps its branch suffix regardless. `.npmrc` is also ignored by the dirty-working-tree check, so a local `.npmrc` no longer blocks a release.
+
 ### Fixed
 
 - A prerelease no longer rebases and pushes `main`. The release branch is rolled back to the version bump and pushed on its own, while `main` is left untouched, so a prerelease branch stays separate from `main` and is merged back by hand.

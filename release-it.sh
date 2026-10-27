@@ -303,7 +303,10 @@ create_version() {
 	# The release commit picks up the manifests and the changelogs by name,
 	# so anything else lying around would be left out of it — and out of
 	# the tag.
-	[[ -z "$(git status --porcelain)" ]] || error "The working tree is not clean. Commit or stash the changes, then release again."
+	# `.npmrc` is a local configuration file (often gitignored) and may carry a
+	# `tag` setting; it is never part of the release commit, so it does not
+	# make the working tree dirty.
+	[[ -z "$(git status --porcelain -- . ':(exclude).npmrc')" ]] || error "The working tree is not clean. Commit or stash the changes, then release again."
 
 	[[ "$RELEASE_TYPE" == "stable" ]] && PRERELEASE_FLAG="" || PRERELEASE_FLAG="--prerelease"
 
@@ -514,11 +517,39 @@ update-changelog() {
 	done
 }
 
+# Reads a `tag` setting from .npmrc (project first, then the home directory),
+# if one is present. pnpm publish does not honour publishConfig.tag, so this is
+# the supported way to publish several differently suffixed prereleases under a
+# single dist-tag.
+npmrc_tag() {
+	local rc value
+	for rc in "$PWD/.npmrc" "${HOME:-}/.npmrc"; do
+		[[ -f "$rc" ]] || continue
+		value=$(sed -n 's/^[[:space:]]*tag[[:space:]]*=[[:space:]]*//p' "$rc" | tail -n 1)
+		# strip a trailing inline comment and surrounding whitespace/quotes
+		value=${value%%#*}
+		value=${value#\"}
+		value=${value%\"}
+		value=${value#\'} 
+		value=${value%\'}
+		value=$(printf '%s' "$value" | sed 's/[[:space:]]*$//')
+		if [[ -n "$value" ]]; then
+			printf '%s' "$value"
+			return 0
+		fi
+	done
+	return 1
+}
+
 publish_to_npm() {
 	local npm_tag="latest"
 
 	if [[ -n "$PRERELEASE_FLAG" ]]; then
-		if [[ "$RELEASE_TYPE" == "unnamed" ]]; then
+		local rc_tag
+		rc_tag=$(npmrc_tag 2>/dev/null || true)
+		if [[ -n "$rc_tag" ]]; then
+			npm_tag="$rc_tag"
+		elif [[ "$RELEASE_TYPE" == "unnamed" ]]; then
 			npm_tag="next"
 		else
 			npm_tag="$PRERELEASE_SUFFIX"
