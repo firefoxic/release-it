@@ -7,6 +7,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com), and 
 
 ## [Unreleased]
 
+## [6.1.1] — 2026–10–27
+
 ### Fixed
 
 - GitHub release bodies now keep the blank lines between paragraphs. Previously every blank line was stripped from the `[Unreleased]` notes, collapsing separate paragraphs into one.
@@ -162,7 +164,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com), and 
 
 - The basic functionality of the `update-changelog` CLI utility.
 
-[Unreleased]: https://github.com/firefoxic/release-it/compare/v6.1.0...HEAD
+[Unreleased]: https://github.com/firefoxic/release-it/compare/v6.1.1...HEAD
+[6.1.1]: https://github.com/firefoxic/release-it/compare/v6.1.0...v6.1.1
 [6.1.0]: https://github.com/firefoxic/release-it/compare/v6.0.2...v6.1.0
 [6.0.2]: https://github.com/firefoxic/release-it/compare/v6.0.1...v6.0.2
 [6.0.1]: https://github.com/firefoxic/release-it/compare/v6.0.0...v6.0.1
