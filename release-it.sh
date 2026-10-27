@@ -184,7 +184,7 @@ setup_authentication() {
 # The section runs until the next release heading — or the link definitions,
 # which come right after [Unreleased] in a changelog with no releases yet.
 unreleased_notes() {
-	awk '/## \[Unreleased\]/{flag=1; next} /## \[/ || /^\[[^]]+\]: /{flag=0} flag' "$1" | sed '/^[[:space:]]*$/d'
+	awk '/## \[Unreleased\]/{flag=1; next} /## \[/ || /^\[[^]]+\]: /{flag=0} flag' "$1" | sed -e '/[^[:space:]]/,$!d'
 }
 
 # Every candidate's changelog decides whether, and how far, it is released.

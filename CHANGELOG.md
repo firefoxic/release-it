@@ -7,6 +7,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com), and 
 
 ## [Unreleased]
 
+### Fixed
+
+- GitHub release bodies now keep the blank lines between paragraphs. Previously every blank line was stripped from the `[Unreleased]` notes, collapsing separate paragraphs into one.
+
 ## [6.1.0] — 2026–10–27
 
 ### Added
