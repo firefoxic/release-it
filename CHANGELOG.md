@@ -7,6 +7,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com), and 
 
 ## [Unreleased]
 
+## [7.0.0] — 2026–10–31
+
 ### Changed
 
 - Releases are now staged on npm instead of being published immediately. Each staged package must be approved on npm before it becomes publicly available; approval requires an OTP, which the release flow no longer asks for.
@@ -168,7 +170,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com), and 
 
 - The basic functionality of the `update-changelog` CLI utility.
 
-[Unreleased]: https://github.com/firefoxic/release-it/compare/v6.1.1...HEAD
+[Unreleased]: https://github.com/firefoxic/release-it/compare/v7.0.0...HEAD
+[7.0.0]: https://github.com/firefoxic/release-it/compare/v6.1.1...v7.0.0
 [6.1.1]: https://github.com/firefoxic/release-it/compare/v6.1.0...v6.1.1
 [6.1.0]: https://github.com/firefoxic/release-it/compare/v6.0.2...v6.1.0
 [6.0.2]: https://github.com/firefoxic/release-it/compare/v6.0.1...v6.0.2
