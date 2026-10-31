@@ -18,7 +18,7 @@ test_a_rejected_branch_push_stops_the_release() {
 
 	assert_failed
 	assert_contains "$RELEASE_ERR" "rejected"
-	assert_eq "" "$(published_args)" "nothing is published"
+	assert_eq "" "$(staged_args)" "nothing is staged"
 	assert_eq "" "$(gh_args)" "no GitHub release is created"
 }
 
@@ -39,5 +39,5 @@ test_a_missing_remote_stops_the_release() {
 	run_release_it
 
 	assert_failed
-	assert_eq "" "$(published_args)" "nothing is published"
+	assert_eq "" "$(staged_args)" "nothing is staged"
 }

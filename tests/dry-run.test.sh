@@ -26,13 +26,13 @@ test_dry_run_creates_no_tags() {
 	assert_not_contains "$(git ls-remote --tags "$ORIGIN")" "refs/tags/v1.3.0"
 }
 
-test_dry_run_neither_publishes_nor_releases() {
+test_dry_run_neither_stages_nor_releases() {
 	make_repo 1.2.3 release
 
 	run_release_it --dry-run
 	assert_succeeded
 
-	assert_eq "" "$(published_args)" "nothing is published"
+	assert_eq "" "$(staged_args)" "nothing is staged"
 	# `gh auth status` is a read-only check and is fine under a dry run.
 	assert_not_contains "$(gh_args)" "release" "no GitHub release is created"
 }
@@ -44,7 +44,7 @@ test_dry_run_reports_the_next_version() {
 	assert_succeeded
 
 	assert_contains "$RELEASE_OUT" "1.2.3 → 1.3.0"
-	assert_contains "$RELEASE_OUT" "pnpm publish --access public --tag latest"
+	assert_contains "$RELEASE_OUT" "pnpm stage publish --access public --tag latest"
 	assert_contains "$RELEASE_OUT" "gh release create v1.3.0"
 }
 
@@ -98,6 +98,7 @@ test_dry_run_never_asks_for_an_otp() {
 
 	assert_succeeded
 	assert_not_contains "$RELEASE_OUT" "Enter NPM_OTP"
+	assert_not_contains "$RELEASE_OUT" "--otp"
 }
 
 test_dry_run_still_validates_the_branch() {

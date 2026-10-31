@@ -11,7 +11,7 @@ test_reports_a_missing_unreleased_link() {
 	assert_failed
 	assert_contains "$RELEASE_ERR" "[Unreleased] link not found"
 	assert_contains "$RELEASE_ERR" "CHANGELOG.md could not be rewritten"
-	assert_eq "" "$(published_args)" "nothing is published"
+	assert_eq "" "$(staged_args)" "nothing is staged"
 	assert_eq "" "$(gh_args)" "no GitHub release is created"
 }
 

@@ -1,5 +1,5 @@
 # Outside CI the npm session is opened before the release writes anything:
-# an unauthenticated publish is only refused at the end of the pipeline, when
+# an unauthenticated stage is only refused at the end of the pipeline, when
 # the commit, the tag and the branch are already on the remote.
 
 test_a_missing_session_is_opened_before_the_release_starts() {
@@ -11,7 +11,9 @@ test_a_missing_session_is_opened_before_the_release_starts() {
 
 	assert_contains "$(login_attempts)" "login"
 	assert_contains "$RELEASE_OUT" "No npm session found"
-	assert_contains "$(published_args)" "--otp=123456"
+	assert_contains "$(staged_args)" "stage publish"
+	assert_not_contains "$(staged_args)" "--otp"
+	assert_not_contains "$RELEASE_OUT" "Enter NPM_OTP"
 }
 
 test_an_existing_session_is_left_alone() {
@@ -31,7 +33,7 @@ test_a_failed_login_stops_the_release_before_anything_is_written() {
 	assert_failed
 	assert_contains "$RELEASE_ERR" "npm login failed"
 	assert_eq "1.2.3" "$(package_version)" "the version is untouched"
-	assert_eq "" "$(published_args)" "nothing is published"
+	assert_eq "" "$(staged_args)" "nothing is staged"
 	assert_eq "" "$(gh_args)" "no GitHub release is created"
 	assert_not_contains "$(git ls-remote --tags "$ORIGIN")" "refs/tags/v1.3.0"
 }
@@ -46,7 +48,7 @@ test_a_login_that_leaves_no_session_stops_the_release() {
 	assert_failed
 	assert_contains "$RELEASE_ERR" "no usable session"
 	assert_eq "1.2.3" "$(package_version)" "the version is untouched"
-	assert_eq "" "$(published_args)" "nothing is published"
+	assert_eq "" "$(staged_args)" "nothing is staged"
 }
 
 test_ci_relies_on_trusted_publishing_and_never_logs_in() {

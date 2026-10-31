@@ -73,7 +73,7 @@ assert_failed() {
 
 # --- sandbox ----------------------------------------------------------------
 
-# Prepares an isolated environment: stubbed `gh` and `pnpm publish` on PATH,
+# Prepares an isolated environment: stubbed `gh` and `pnpm stage publish` on PATH,
 # and a throwaway global git config so that `git config --global` (which the
 # script runs under CI) can never reach the real one.
 setup_sandbox() {
@@ -82,12 +82,12 @@ setup_sandbox() {
 	WORK="$SANDBOX/work"
 	GH_LOG="$SANDBOX/gh.log"
 	GH_NOTES="$SANDBOX/gh-notes.txt"
-	PUBLISH_LOG="$SANDBOX/publish.log"
+	STAGE_LOG="$SANDBOX/stage.log"
 	LOGIN_LOG="$SANDBOX/login.log"
 	# The stubbed npm session: present means logged in, absent means not.
 	NPM_SESSION="$SANDBOX/npm-session"
 
-	export GH_LOG GH_NOTES PUBLISH_LOG LOGIN_LOG NPM_SESSION REAL_PNPM
+	export GH_LOG GH_NOTES STAGE_LOG LOGIN_LOG NPM_SESSION REAL_PNPM
 	export GIT_CONFIG_GLOBAL="$SANDBOX/gitconfig"
 
 	# The script switches to trusted publishing when it sees CI=true, which
@@ -101,7 +101,7 @@ setup_sandbox() {
 	: > "$GIT_CONFIG_GLOBAL"
 	: > "$GH_LOG"
 	: > "$GH_NOTES"
-	: > "$PUBLISH_LOG"
+	: > "$STAGE_LOG"
 	: > "$LOGIN_LOG"
 	printf 'tester\n' > "$NPM_SESSION"
 
@@ -130,8 +130,9 @@ write_stubs() {
 		# The script addresses workspace packages with `pnpm -C <dir> …`.
 		[[ "${1:-}" == "-C" ]] && shift 2
 		case "${1:-}" in
-			publish)
-				printf '%s\n' "${args[*]}" >> "$PUBLISH_LOG"
+			stage)
+				[[ "${2:-}" == "publish" ]] || exit 1
+				printf '%s\n' "${args[*]}" >> "$STAGE_LOG"
 				exit 0
 				;;
 			whoami)
@@ -268,10 +269,9 @@ finish_workspace() {
 
 # --- running the script -----------------------------------------------------
 
-# Captures stdout, stderr and the exit status; stdin carries the OTP that the
-# script prompts for outside CI.
+# Captures stdout, stderr and the exit status.
 run_release_it() {
-	RELEASE_OUT="$(printf '%s\n' "${OTP_INPUT:-123456}" | "$RELEASE_IT" "$@" 2>"$SANDBOX/stderr")"
+	RELEASE_OUT="$("$RELEASE_IT" "$@" </dev/null 2>"$SANDBOX/stderr")"
 	RELEASE_STATUS=$?
 	RELEASE_ERR="$(cat "$SANDBOX/stderr")"
 }
@@ -292,8 +292,8 @@ own_version() {
 	(cd "$ROOT_DIR" && "$REAL_PNPM" pkg get version)
 }
 
-published_args() {
-	cat "$PUBLISH_LOG"
+staged_args() {
+	cat "$STAGE_LOG"
 }
 
 gh_args() {

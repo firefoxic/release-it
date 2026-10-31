@@ -7,72 +7,76 @@ The format is based on [Keep a Changelog](https://keepachangelog.com), and 
 
 ## [Unreleased]
 
+### Changed
+
+- Releases are now staged on npm instead of being published immediately. Each staged package must be approved on npm before it becomes publicly available; approval requires an OTP, which the release flow no longer asks for.
+
 ## [6.1.1] — 2026–10–27
 
 ### Fixed
 
-- GitHub release bodies now keep the blank lines between paragraphs. Previously every blank line was stripped from the `[Unreleased]` notes, collapsing separate paragraphs into one.
+- GitHub release bodies now keep the blank lines between paragraphs. Previously every blank line was stripped from the `[Unreleased]` notes, collapsing separate paragraphs into one.
 
 ## [6.1.0] — 2026–10–27
 
 ### Added
 
-- A `tag` setting in `.npmrc` is now honoured for prereleases: when present, its value is passed to `pnpm publish` as `--tag`, so several differently suffixed prereleases (alpha, beta, rc, …) can share one dist-tag. The version keeps its branch suffix regardless. `.npmrc` is also ignored by the dirty-working-tree check, so a local `.npmrc` no longer blocks a release.
+- A `tag` setting in `.npmrc` is now honoured for prereleases: when present, its value is passed to `pnpm publish` as `--tag`, so several differently suffixed prereleases (alpha, beta, rc, …) can share one dist-tag. The version keeps its branch suffix regardless. `.npmrc` is also ignored by the dirty-working-tree check, so a local `.npmrc` no longer blocks a release.
 
 ### Fixed
 
-- A prerelease no longer rebases and pushes `main`. The release branch is rolled back to the version bump and pushed on its own, while `main` is left untouched, so a prerelease branch stays separate from `main` and is merged back by hand.
+- A prerelease no longer rebases and pushes `main`. The release branch is rolled back to the version bump and pushed on its own, while `main` is left untouched, so a prerelease branch stays separate from `main` and is merged back by hand.
 
 ## [6.0.2] — 2026–10–20
 
 ### Fixed
 
-- A prerelease no longer leaves its branch unable to cut the next one. The version bump and the `CHANGELOG.md` update are now two separate commits — the bump first — and after the npm publish and the GitHub release the branch is rolled back to the bump. The manifest keeps the prerelease version while `[Unreleased]` is left untouched, so the next prerelease bumps from there instead of finding an empty section or re-publishing an existing version. The version tag stays on the changelog commit, keeping the release reachable. Since the tag then sits one commit ahead of the rolled-back branch, a plain `git fetch origin` does not fetch it — use `git fetch --tags`.
+- A prerelease no longer leaves its branch unable to cut the next one. The version bump and the `CHANGELOG.md` update are now two separate commits — the bump first — and after the npm publish and the GitHub release the branch is rolled back to the bump. The manifest keeps the prerelease version while `[Unreleased]` is left untouched, so the next prerelease bumps from there instead of finding an empty section or re-publishing an existing version. The version tag stays on the changelog commit, keeping the release reachable. Since the tag then sits one commit ahead of the rolled-back branch, a plain `git fetch origin` does not fetch it — use `git fetch --tags`.
 
 ## [6.0.1] — 2026–08–30
 
 ### Fixed
 
-- A changelog entry that merely mentions a heading, such as “`### Changed` now bumps the minor version”, no longer counts as that heading. Previously such an entry under `### Added` made the release a major one — which is how `6.0.0` came to be, with no breaking changes in it. Only a whole line reading `### Changed`, `### Added` or `### Fixed` decides the bump now.
+- A changelog entry that merely mentions a heading, such as “`### Changed` now bumps the minor version”, no longer counts as that heading. Previously such an entry under `### Added` made the release a major one — which is how `6.0.0` came to be, with no breaking changes in it. Only a whole line reading `### Changed`, `### Added` or `### Fixed` decides the bump now.
 
 ## [6.0.0] — 2026–08–30
 
 ### Added
 
-- pnpm workspaces are now supported. When `pnpm-workspace.yaml` lists packages, every non-private package with entries under `[Unreleased]` in its own `CHANGELOG.md` is released — with its own version bump, a `<name>@<version>` tag, its own npm publish and its own GitHub release — all in one commit. Packages whose `[Unreleased]` section is empty are left alone, and the workspace root is never released. The `[Unreleased]` link of a package changelog has to point at the `<name>@<version>` tag.
-- Below `1.0.0`, `### Changed` now bumps the minor version instead of the major one, for stable releases and prereleases alike: breaking changes are expected during initial development and should not push the package out of the `0.x` range on their own.
-- `release-first-major` branch has been added to cut `1.0.0`. It bumps to the first major version whatever the `[Unreleased]` headings say, and refuses to run once the package is at `1.0.0` or above. Its prereleases come from `release-first-major-<name>` (`1.0.0-<name>.0`, …) and `release-first-major-` (`1.0.0-0`, …), just like the prereleases of any other version.
+- pnpm workspaces are now supported. When `pnpm-workspace.yaml` lists packages, every non-private package with entries under `[Unreleased]` in its own `CHANGELOG.md` is released — with its own version bump, a `<name>@<version>` tag, its own npm publish and its own GitHub release — all in one commit. Packages whose `[Unreleased]` section is empty are left alone, and the workspace root is never released. The `[Unreleased]` link of a package changelog has to point at the `<name>@<version>` tag.
+- Below `1.0.0`, `### Changed` now bumps the minor version instead of the major one, for stable releases and prereleases alike: breaking changes are expected during initial development and should not push the package out of the `0.x` range on their own.
+- `release-first-major` branch has been added to cut `1.0.0`. It bumps to the first major version whatever the `[Unreleased]` headings say, and refuses to run once the package is at `1.0.0` or above. Its prereleases come from `release-first-major-<name>` (`1.0.0-<name>.0`, …) and `release-first-major-` (`1.0.0-0`, …), just like the prereleases of any other version.
 
 ### Fixed
 
-- A changelog that cannot be rewritten no longer leaves a version commit and a tag behind: the version is now committed together with the changelog, so a failed rewrite takes the bump back and leaves the working tree as it was.
-- A release from a dirty working tree is now refused up front, with a message saying so. Previously `pnpm version` refused it, less clearly, after the OTP had already been entered.
+- A changelog that cannot be rewritten no longer leaves a version commit and a tag behind: the version is now committed together with the changelog, so a failed rewrite takes the bump back and leaves the working tree as it was.
+- A release from a dirty working tree is now refused up front, with a message saying so. Previously `pnpm version` refused it, less clearly, after the OTP had already been entered.
 
 ## [5.2.1] — 2026–08–25
 
 ### Fixed
 
-- A local release now checks the npm session before it changes anything, and runs `pnpm login` when there is none. Previously an unauthenticated machine got as far as pushing the version commit, the tag and the release branch, and only then failed to publish — leaving the branch and the tag to be deleted by hand.
+- A local release now checks the npm session before it changes anything, and runs `pnpm login` when there is none. Previously an unauthenticated machine got as far as pushing the version commit, the tag and the release branch, and only then failed to publish — leaving the branch and the tag to be deleted by hand.
 
 ## [5.2.0] — 2026–08–16
 
 ### Added
 
-- `--dry-run` flag (shorthand: `-n`) has been added. It walks through the whole release — branch check, version bump, changelog rewrite, npm tag and GitHub release notes — and reports what would happen without writing, pushing or publishing anything.
+- `--dry-run` flag (shorthand: `-n`) has been added. It walks through the whole release — branch check, version bump, changelog rewrite, npm tag and GitHub release notes — and reports what would happen without writing, pushing or publishing anything.
 
 ### Fixed
 
-- `--version` now reports the version of `@firefoxic/release-it` itself. Previously it printed the version of the package you were about to release.
-- `jq` is no longer required. It was an undeclared dependency, and the version is now read with `pnpm` instead.
-- A `CHANGELOG.md` that cannot be rewritten is now reported as an error. Previously the script died silently at that point, leaving a temporary file behind.
-- A rejected push of the release branch now stops the release. Previously the failure was ignored, so the package was published and a GitHub release was created for a commit that never reached the remote.
-- The OTP is no longer echoed to the terminal while you type it.
+- `--version` now reports the version of `@firefoxic/release-it` itself. Previously it printed the version of the package you were about to release.
+- `jq` is no longer required. It was an undeclared dependency, and the version is now read with `pnpm` instead.
+- A `CHANGELOG.md` that cannot be rewritten is now reported as an error. Previously the script died silently at that point, leaving a temporary file behind.
+- A rejected push of the release branch now stops the release. Previously the failure was ignored, so the package was published and a GitHub release was created for a commit that never reached the remote.
+- The OTP is no longer echoed to the terminal while you type it.
 
 ## [5.1.0] — 2026–07–01
 
 ### Added
 
-- `--version` flag (shorthand: `-v`) has been added to show the current version of `@firefoxic/release-it`.
+- `--version` flag (shorthand: `-v`) has been added to show the current version of `@firefoxic/release-it`.
 
 ### Fixed
 
@@ -82,14 +86,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com), and 
 
 ### Changed
 
-- Support for `npm` has been removed. Only `pnpm@11+` is now supported.
-- `node.js` now requires version `22.22.0` or later.
+- Support for `npm` has been removed. Only `pnpm@11+` is now supported.
+- `node.js` now requires version `22.22.0` or later.
 
 ## [4.1.0] — 2026–02–03
 
 ### Added
 
-- `@firefoxic/release-it` will now automatically update `npm` if its version is older than `11.5.1`, which is the minimum version required for trusted publishing. You can now remove the `npm` update command from your GitHub Action.
+- `@firefoxic/release-it` will now automatically update `npm` if its version is older than `11.5.1`, which is the minimum version required for trusted publishing. You can now remove the `npm` update command from your GitHub Action.
 
 ## [4.0.1] — 2026–01–24
 
@@ -101,7 +105,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com), and 
 
 ### Changed
 
-- The package now uses [trusted publishing](https://docs.npmjs.com/trusted-publishers) instead of NPM tokens. You should remove the line with `NPM_TOKEN` from your release pipeline (and also remove the `NPM_TOKEN` from secrets of your repository) and add a line with `registry-url: 'https://registry.npmjs.org'` (see the changes to the `release.yaml` file as an example).
+- The package now uses [trusted publishing](https://docs.npmjs.com/trusted-publishers) instead of NPM tokens. You should remove the line with `NPM_TOKEN` from your release pipeline (and also remove the `NPM_TOKEN` from secrets of your repository) and add a line with `registry-url: 'https://registry.npmjs.org'` (see the changes to the `release.yaml` file as an example).
 
 ## [3.0.0] — 2025–09–24
 
@@ -109,12 +113,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com), and 
 
 - The project has been renamed to `@firefoxic/release-it`.
 - The launch command for local installation has been renamed to `release-it`.
-- The tool now not only updates the changelog, but also performs all other steps before and after that are necessary to publish a new version of the package. This means that you need to remove the commands and logic for raising the version and publishing it from the pipeline and scripts.
+- The tool now not only updates the changelog, but also performs all other steps before and after that are necessary to publish a new version of the package. This means that you need to remove the commands and logic for raising the version and publishing it from the pipeline and scripts.
 
 ### Added
 
 - Pre-release versions are now possible, and their names are determined based on the branch name.
-- Before updating the changelog, the package version is now raised according to the version type (still selected based on the changelog content) and possible pre-release status.
+- Before updating the changelog, the package version is now raised according to the version type (still selected based on the changelog content) and possible pre-release status.
 - The package with the new version is now built and published to npm with the appropriate authentication — `NPM_TOKEN` for CI or `OTP` for local execution.
 - A release of the published version is now automatically created on GitHub.
 
@@ -138,27 +142,27 @@ The format is based on [Keep a Changelog](https://keepachangelog.com), and 
 
 ### Added
 
-- The project has been rewritten in `bash` and now does not depend on node.js or npm packages.
+- The project has been rewritten in `bash` and now does not depend on node.js or npm packages.
 
 ## [1.0.0] — 2024–10–30
 
 ### Changed
 
-- The minimum required `node.js` version has been increased to `20.12.0`, except for version `21`.
+- The minimum required `node.js` version has been increased to `20.12.0`, except for version `21`.
 
 ## [0.2.1] — 2024–09–25
 
 ### Fixed
 
-- The _space_ before the dash in the version heading is now _non-breaking_. This hardly affects anything, but for consistency of typography it should be like this everywhere.
+- The _space_ before the dash in the version heading is now _non-breaking_. This hardly affects anything, but for consistency of typography it should be like this everywhere.
 
-## [0.2.0] — 2024–07–30
+## [0.2.0] — 2024–07–30
 
 ### Added
 
 - The `update-changelog` utility now automatically stages `CHANGELOG.md` in git. You can remove `&& git add CHANGELOG.md` from your `version` hook and leave only `update-changelog` in it.
 
-## [0.1.0] — 2024–05–09
+## [0.1.0] — 2024–05–09
 
 ### Added
 

@@ -1,5 +1,5 @@
 # A pnpm workspace: every package with an [Unreleased] entry is released,
-# with its own version, tag, npm publish and GitHub release, in one commit.
+# with its own version, tag, npm stage and GitHub release, in one commit.
 
 two_packages() {
 	make_workspace
@@ -27,7 +27,7 @@ test_packages_without_changes_are_left_alone() {
 
 	assert_eq "0.4.0" "$(pnpm -C packages/gadget pkg get version)"
 	assert_eq "widget@1.3.0" "$(git tag --points-at HEAD)" "the untouched package gets no tag"
-	assert_not_contains "$(published_args)" "gadget" "the untouched package is not published"
+	assert_not_contains "$(staged_args)" "gadget" "the untouched package is not staged"
 	assert_not_contains "$(git show --name-only --format= HEAD)" "gadget"
 }
 
@@ -40,8 +40,8 @@ test_the_root_and_private_packages_are_never_released() {
 	assert_succeeded
 
 	assert_eq "0.1.0" "$(pnpm -C packages/internal pkg get version)"
-	assert_not_contains "$(published_args)" "internal"
-	assert_not_contains "$(published_args)" "monorepo"
+	assert_not_contains "$(staged_args)" "internal"
+	assert_not_contains "$(staged_args)" "monorepo"
 	assert_eq "widget@1.3.0" "$(git tag --points-at HEAD)"
 }
 
@@ -72,7 +72,7 @@ test_scoped_names_work_in_tags_and_links() {
 
 	assert_eq "@acme/widget@1.3.0" "$(git tag --points-at HEAD)"
 	assert_contains "$(cat packages/widget/CHANGELOG.md)" "[1.3.0]: https://github.com/acme/widget/compare/@acme/widget@1.2.3...@acme/widget@1.3.0"
-	assert_contains "$(published_args)" "-C packages/widget publish"
+	assert_contains "$(staged_args)" "-C packages/widget stage publish"
 }
 
 test_all_bumps_and_changelogs_share_one_commit() {
@@ -109,13 +109,13 @@ test_each_changelog_is_rewritten_with_its_own_tags() {
 	assert_contains "$gadget" "[0.4.1]: https://github.com/acme/widget/compare/gadget@0.4.0...gadget@0.4.1"
 }
 
-test_each_package_is_published_from_its_directory() {
+test_each_package_is_staged_from_its_directory() {
 	two_packages
 	run_release_it
 	assert_succeeded
 
-	assert_contains "$(published_args)" "-C packages/widget publish --access public --tag latest"
-	assert_contains "$(published_args)" "-C packages/gadget publish --access public --tag latest"
+	assert_contains "$(staged_args)" "-C packages/widget stage publish --access public --tag latest"
+	assert_contains "$(staged_args)" "-C packages/gadget stage publish --access public --tag latest"
 }
 
 test_each_package_gets_its_own_github_release() {
@@ -145,7 +145,7 @@ test_a_prerelease_branch_applies_to_every_package() {
 
 	assert_eq "1.3.0-beta.0" "$(pnpm -C packages/widget pkg get version)"
 	assert_eq "0.4.1-beta.0" "$(pnpm -C packages/gadget pkg get version)"
-	assert_contains "$(published_args)" "-C packages/widget publish --access public --tag beta"
+	assert_contains "$(staged_args)" "-C packages/widget stage publish --access public --tag beta"
 	assert_contains "$(gh_args)" "release create gadget@0.4.1-beta.0 --title Release gadget@0.4.1-beta.0 --notes-file - --prerelease"
 }
 
@@ -180,7 +180,7 @@ test_first_major_refuses_a_package_already_past_it() {
 
 	assert_failed
 	assert_contains "$RELEASE_ERR" "packages/widget is at 1.2.3"
-	assert_eq "" "$(published_args)"
+	assert_eq "" "$(staged_args)"
 }
 
 test_rejects_a_workspace_with_nothing_to_release() {
@@ -191,7 +191,7 @@ test_rejects_a_workspace_with_nothing_to_release() {
 
 	assert_failed
 	assert_contains "$RELEASE_ERR" "No package has changes"
-	assert_eq "" "$(published_args)"
+	assert_eq "" "$(staged_args)"
 }
 
 test_rejects_a_workspace_of_private_packages_only() {
@@ -216,7 +216,7 @@ test_a_broken_changelog_stops_the_whole_release() {
 	assert_contains "$RELEASE_ERR" "packages/gadget/CHANGELOG.md could not be rewritten"
 	assert_eq "1.2.3" "$(pnpm -C packages/widget pkg get version)" "the other bump is taken back"
 	assert_eq "" "$(git status --porcelain)" "the working tree is left clean"
-	assert_eq "" "$(published_args)"
+	assert_eq "" "$(staged_args)"
 }
 
 test_dry_run_previews_every_package_and_changes_nothing() {
@@ -236,7 +236,7 @@ test_dry_run_previews_every_package_and_changes_nothing() {
 	assert_eq "$head" "$(git rev-parse HEAD)"
 	assert_eq "" "$(git status --porcelain)"
 	assert_eq "1.2.3" "$(pnpm -C packages/widget pkg get version)"
-	assert_eq "" "$(published_args)"
+	assert_eq "" "$(staged_args)"
 }
 
 test_a_package_before_its_first_release_can_sit_a_release_out() {

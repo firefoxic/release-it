@@ -1,5 +1,5 @@
 # What a finished release leaves behind: one commit, a rewritten changelog,
-# a pushed tag, an npm publish and a GitHub release.
+# a pushed tag, an npm staged upload and a GitHub release.
 
 test_changelog_and_version_share_one_commit() {
 	release_from 1.2.3 release
@@ -78,27 +78,29 @@ test_main_is_rebased_onto_the_release() {
 	assert_eq "$(git rev-parse main)" "$(git rev-parse origin/main)"
 }
 
-test_stable_release_publishes_under_the_latest_tag() {
+test_stable_release_stages_under_the_latest_tag() {
 	release_from 1.2.3 release
 
 	local args
-	args="$(published_args)"
+	args="$(staged_args)"
 
+	assert_contains "$args" "stage publish"
 	assert_contains "$args" "--tag latest"
-	assert_contains "$args" "--otp=123456"
+	assert_not_contains "$args" "--otp"
 	assert_not_contains "$args" "--provenance" "provenance is reserved for CI"
+	assert_contains "$RELEASE_OUT" "Packages staged on npm"
 }
 
-test_named_prerelease_publishes_under_its_own_tag() {
+test_named_prerelease_stages_under_its_own_tag() {
 	release_from 1.2.3 release-beta
 
-	assert_contains "$(published_args)" "--tag beta"
+	assert_contains "$(staged_args)" "--tag beta"
 }
 
-test_unnamed_prerelease_publishes_under_the_next_tag() {
+test_unnamed_prerelease_stages_under_the_next_tag() {
 	release_from 1.2.3 release-
 
-	assert_contains "$(published_args)" "--tag next"
+	assert_contains "$(staged_args)" "--tag next"
 }
 
 test_github_release_carries_the_changelog_entries() {

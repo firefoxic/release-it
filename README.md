@@ -4,18 +4,18 @@
 [![Changelog][changelog-image]][changelog-url]
 [![Test Status][test-image]][test-url]
 
-A powerful release script that automates the entire release process including updating changelog, npm publishing (using `pnpm`) and GitHub releases.
+A powerful release script that automates the entire release process including updating the changelog, staging npm packages (using `pnpm`) and creating GitHub releases.
 
 ## Purpose
 
-Publishing a new version of a package is a routine sequence of several steps involving running commands, editing files, entering passwords, copying text to GitHub, and so on. It's easy to make a mistake at any stage, especially when editing CHANGELOG.md. Do it all with a single command or push to the release branch.
+Releasing a new version of a package is a routine sequence of several steps involving running commands, editing files, staging the package on npm, approving it, copying text to GitHub, and so on. It's easy to make a mistake at any stage, especially when editing CHANGELOG.md. Do it all with a single command or push to the release branch.
 
 ### Usage
 
 - In GitHub CI
 
 	1. Create a release action. See the [`release.yaml`](https://github.com/firefoxic/release-it/blob/main/.github/workflows/release.yaml) file for an example, where important points are described in the comments.
-	2. In the settings of your package on <https://npmjs.com>, enable [trusted publishing](https://docs.npmjs.com/trusted-publishers) (if you haven't already).
+	2. In the settings of your package on <https://npmjs.com>, enable [trusted publishing](https://docs.npmjs.com/trusted-publishers) with the `stage publish` permission (if you haven't already).
 	3. Push the branch named starting with `release` (see below) to GitHub.
 
 - Locally
@@ -28,29 +28,30 @@ Publishing a new version of a package is a routine sequence of several step
 		# pnx @firefoxic/release-it
 		```
 
-	2. If the machine has no npm session, the script runs `pnpm login` before it touches
-		the repository, so a login that fails leaves nothing to clean up.
-	3. And enter OTP.
+	2. If the machine has no npm session, the script runs `pnpm login` before it touches
+		the repository, so a login that fails leaves nothing to clean up.
 
 - Preview
 
-	To check what a release would do — which version it picks, how `CHANGELOG.md` would change, under which npm tag it would publish — without changing anything:
+	To check what a release would do — which version it picks, how `CHANGELOG.md` would change, under which npm tag it would stage — without changing anything:
 
 	```shell
 	pnpm dlx @firefoxic/release-it --dry-run
 	```
 
-The very first publish of a new package has to be run locally: trusted publishing is set up on npmjs.com per package, so there is nothing to configure until a version exists, and an OTP cannot be entered on a runner. Once the first version is out and trusted publishing is enabled, later releases can go through CI as usual.
+Every release is uploaded to npm as a staged package, which is not publicly available until it is approved. After the script finishes, approve each staged version (for example, with `pnpm stage approve <stage-id>`); approval requires 2FA. The stage ID is shown in the staging output. For workspaces, approve each package separately. Staged package tags cannot be changed after staging.
+
+The first release of a new package has to be staged locally because its trusted publisher cannot be configured until the package exists. Approve that staged version, configure trusted publishing with the `stage publish` permission, and later releases can be staged through CI.
 
 ### Requirements
 
-- [**pnpm**](https://pnpm.io/installation#on-posix-systems)
+- [**pnpm 12.14.0 or later**](https://pnpm.io/installation#on-posix-systems)
 - [Node.js](https://nodejs.org) (you can install it using [pnpm](https://pnpm.io/cli/runtime))
 - Git repository with GitHub remote
 - [**GitHub CLI (gh)**](https://cli.github.com) for locally using
 
 	```shell
-	# First time setup — authenticate with GitHub
+	# First time setup — authenticate with GitHub
 	gh auth login
 	```
 
@@ -59,8 +60,8 @@ The very first publish of a new package has to be run locally: trusted publishin
 The release script uses branch names to determine the release type:
 
 - **`release`** → Stable release (e.g., `1.1.0`)
-- **`release-first-major`** → The first major release, `1.0.0` (see below)
-- **`release-first-major-rc`** → A prerelease of it (e.g., `1.0.0-rc.1`); `release-first-major-` → a numbered one (e.g., `1.0.0-1`)
+- **`release-first-major`** → The first major release, `1.0.0` (see below)
+- **`release-first-major-rc`** → A prerelease of it (e.g., `1.0.0-rc.1`); `release-first-major-` → a numbered one (e.g., `1.0.0-1`)
 - **`release-alpha`** → Alpha prerelease (e.g., `1.0.0-alpha.1`)
 - **`release-beta`** → Beta prerelease (e.g., `1.0.0-beta.1`)
 - **`release-rc`** → Release candidate (e.g., `1.0.0-rc.1`)
@@ -74,55 +75,57 @@ The script automatically determines the version bump based on changelog conte
 - **`### Added`** → Minor version (new features)
 - **`### Fixed`** → Patch version (bug fixes)
 
-These three are the only headings the script recognises; any other one stops the release. That narrowing is deliberate — three headings map one to one onto the three parts of a semantic version, so nothing is left to interpretation. The remaining [Keep a Changelog](https://keepachangelog.com) headings fold into them:
+These three are the only headings the script recognises; any other one stops the release. That narrowing is deliberate — three headings map one to one onto the three parts of a semantic version, so nothing is left to interpretation. The remaining [Keep a Changelog](https://keepachangelog.com) headings fold into them:
 
-- **`Removed`** → **`Changed`**. Taking functionality away is a change, and a breaking one.
-- **`Security`** → **`Fixed`**. Closing a vulnerability is a bug fix.
-- **`Deprecated`** → **`Changed`**. Semantic Versioning treats a deprecation as a minor change, but deprecation messages often force a change to an established workflow, and that is a major change by nature.
+- **`Removed`** → **`Changed`**. Taking functionality away is a change, and a breaking one.
+- **`Security`** → **`Fixed`**. Closing a vulnerability is a bug fix.
+- **`Deprecated`** → **`Changed`**. Semantic Versioning treats a deprecation as a minor change, but deprecation messages often force a change to an established workflow, and that is a major change by nature.
 
-#### Before 1.0.0
+#### Before 1.0.0
 
-While the package is below `1.0.0`, **`### Changed`** bumps the minor version, not the major one: `0.4.2` → `0.5.0`. Semantic Versioning reserves `0.y.z` for initial development, where anything may change at any time, so a breaking change there is expected and is not a reason to leave the range. The same cap applies to prereleases (`0.5.0-beta.0`, not `1.0.0-beta.0`).
+While the package is below `1.0.0`, **`### Changed`** bumps the minor version, not the major one: `0.4.2` → `0.5.0`. Semantic Versioning reserves `0.y.z` for initial development, where anything may change at any time, so a breaking change there is expected and is not a reason to leave the range. The same cap applies to prereleases (`0.5.0-beta.0`, not `1.0.0-beta.0`).
 
-Reaching `1.0.0` is a deliberate decision, so it is made with a branch rather than a heading. Release from **`release-first-major`** and the version becomes `1.0.0` regardless of which headings the `[Unreleased]` section carries — it still has to be non-empty, since it becomes the release notes. The branch works only once: with the package already at `1.0.0` or above it refuses to run, and `release` takes over from there.
+Reaching `1.0.0` is a deliberate decision, so it is made with a branch rather than a heading. Release from **`release-first-major`** and the version becomes `1.0.0` regardless of which headings the `[Unreleased]` section carries — it still has to be non-empty, since it becomes the release notes. The branch works only once: with the package already at `1.0.0` or above it refuses to run, and `release` takes over from there.
 
-The first major can be tried out first: `release-first-major-<name>` publishes `1.0.0-<name>.0`, `1.0.0-<name>.1`, … under the `<name>` dist-tag, and `release-first-major-` publishes `1.0.0-0`, `1.0.0-1`, … under `next` — exactly as `release-<name>` and `release-` do for any other version. Once such a prerelease is out, `release-first-major` turns it into `1.0.0`.
+The first major can be tried out first: `release-first-major-<name>` publishes `1.0.0-<name>.0`, `1.0.0-<name>.1`, … under the `<name>` dist-tag, and `release-first-major-` publishes `1.0.0-0`, `1.0.0-1`, … under `next` — exactly as `release-<name>` and `release-` do for any other version. Once such a prerelease is out, `release-first-major` turns it into `1.0.0`.
 
 #### Prereleases
 
-A prerelease is committed differently from a stable release, so that its branch is immediately ready for the next one. The version bump and the `CHANGELOG.md` update are two separate commits — the bump first — and after the npm publish and the GitHub release the branch is rolled back to the version bump. The manifest therefore keeps the prerelease version while `[Unreleased]` is left exactly as it was, with the entries that went into the prerelease still in it. The version tag is left where it is, on the changelog commit, so the release stays reachable; only the branch moves back.
+A prerelease is committed differently from a stable release, so that its branch is immediately ready for the next one. The version bump and the `CHANGELOG.md` update are two separate commits — the bump first — and after the npm publish and the GitHub release the branch is rolled back to the version bump. The manifest therefore keeps the prerelease version while `[Unreleased]` is left exactly as it was, with the entries that went into the prerelease still in it. The version tag is left where it is, on the changelog commit, so the release stays reachable; only the branch moves back.
 
-That is what makes the next prerelease work without any manual cleanup: the manifest is already on `1.3.0-beta.0`, so the next `release-beta` publishes `1.3.0-beta.1`, and `[Unreleased]` still has the content to pick the bump from. The release branch is pushed on its own; `main` is left untouched, so a prerelease branch stays separate from `main` and is merged back by hand.
+That is what makes the next prerelease work without any manual cleanup: the manifest is already on `1.3.0-beta.0`, so the next `release-beta` publishes `1.3.0-beta.1`, and `[Unreleased]` still has the content to pick the bump from. The release branch is pushed on its own; `main` is left untouched, so a prerelease branch stays separate from `main` and is merged back by hand.
 
-Because the tag sits one commit ahead of the rolled-back branch, a plain `git fetch origin` does not pick it up — it only follows tags that point into the fetched branch history. Fetch it with `git fetch --tags`, or a single tag with `git fetch origin tag v1.3.0-beta.0`.
+Because the tag sits one commit ahead of the rolled-back branch, a plain `git fetch origin` does not pick it up — it only follows tags that point into the fetched branch history. Fetch it with `git fetch --tags`, or a single tag with `git fetch origin tag v1.3.0-beta.0`.
 
 #### pnpm workspaces
 
-A repository whose `pnpm-workspace.yaml` lists packages is treated as a monorepo; nothing has to be switched on. Only pnpm workspaces are supported — the script relies on pnpm for everything else, too.
+A repository whose `pnpm-workspace.yaml` lists packages is treated as a monorepo; nothing has to be switched on. Only pnpm workspaces are supported — the script relies on pnpm for everything else, too.
 
-- Every workspace package keeps its own `CHANGELOG.md`, in the same format as a single package would. The root does not need one.
-- Every non-private package with entries under `[Unreleased]` is released; a package whose `[Unreleased]` section is empty is left alone. Each released package gets its own bump from its own headings, so the versions stay independent.
-- A stable release is one commit — every bumped `package.json` together with every rewritten `CHANGELOG.md` — while a prerelease is split and rolled back as described above. Either way there is one tag per package, named **`<name>@<version>`** (`widget@1.3.0`, `@acme/widget@1.3.0`): a plain `v1.3.0` could not say which package it belongs to. The `[Unreleased]` link of a package changelog therefore points at such a tag:
+- Every workspace package keeps its own `CHANGELOG.md`, in the same format as a single package would. The root does not need one.
+- Every non-private package with entries under `[Unreleased]` is released; a package whose `[Unreleased]` section is empty is left alone. Each released package gets its own bump from its own headings, so the versions stay independent.
+- A stable release is one commit — every bumped `package.json` together with every rewritten `CHANGELOG.md` — while a prerelease is split and rolled back as described above. Either way there is one tag per package, named **`<name>@<version>`** (`widget@1.3.0`, `@acme/widget@1.3.0`): a plain `v1.3.0` could not say which package it belongs to. The `[Unreleased]` link of a package changelog therefore points at such a tag:
 
 	```md
 	[Unreleased]: https://github.com/<user-name>/<project-name>/compare/<package-name>@0.0.1...HEAD
 	```
 
-- Each package is published to npm and gets a GitHub release of its own, with its changelog entries as the notes.
-- The release branch applies to all of them: `release-beta` makes a beta of every package being released, and `release-first-major` takes every one of them to `1.0.0` — and refuses to run if any of them is already there.
+- Each package is staged on npm and gets a GitHub release of its own, with its changelog entries as the notes. Approve the staged package before it becomes publicly installable.
+- The release branch applies to all of them: `release-beta` makes a beta of every package being released, and `release-first-major` takes every one of them to `1.0.0` — and refuses to run if any of them is already there.
 
-#### Authentication
+#### Staged publishing
 
-- **CI/CD**: Uses NPM trusted publishing
-- **Local**: Checks the npm session up front, runs `pnpm login` when there is none, and only then asks for an OTP — all before the version commit, the tag and the branch exist
-- **GitHub**: Requires `gh auth login` or `GITHUB_TOKEN` environment variable
+The release script uses [`pnpm stage publish`](https://pnpm.io/cli/stage) instead of publishing directly. Each package is staged with the same dist-tag it would otherwise be published under (`latest`, `next`, or the prerelease suffix), then requires approval on npm before users can install that version. Approval is a separate manual action and requires 2FA.
+
+- **CI/CD**: Uses npm trusted publishing configured to allow `stage publish`.
+- **Local**: Checks the npm session up front and runs `pnpm login` when there is none.
+- **GitHub**: Requires `gh auth login` or `GITHUB_TOKEN` environment variable.
 
 #### Changelog restrictions
 
 - The name of the changelog file is `CHANGELOG.md`.
 - The format of the changelog is consistent with [Keep a changelog](https://keepachangelog.com).
-- Descriptions of all user-important changes are already in the changelog under the heading `[Unreleased]`. Ideally, you should commit them along with the changes themselves.
-- If this is the first release of a package, there should be only one reference for [Unreleased] at the end of the changelog in the following format for correct reference updating:
+- Descriptions of all user-important changes are already in the changelog under the heading `[Unreleased]`. Ideally, you should commit them along with the changes themselves.
+- If this is the first release of a package, there should be only one reference for [Unreleased] at the end of the changelog in the following format for correct reference updating:
 
 	```md
 	[Unreleased]: https://github.com/<user-name>/<project-name>/compare/v0.0.1...HEAD

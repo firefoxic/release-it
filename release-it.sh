@@ -4,7 +4,6 @@ set -euo pipefail
 CURRENT_BRANCH=""
 RELEASE_TYPE=""
 PRERELEASE_SUFFIX=""
-NPM_OTP=""
 PRERELEASE_FLAG=""
 FIRST_MAJOR=false
 DRY_RUN=false
@@ -60,7 +59,7 @@ tag_prefix() {
 }
 
 # Runs pnpm in a package directory, through `run`. The directory is only
-# spelled out in a workspace: `pnpm -C . publish` would be noise otherwise.
+# spelled out in a workspace: `pnpm -C . stage publish` would be noise otherwise.
 pnpm_in() {
 	local dir=$1
 	shift
@@ -134,7 +133,7 @@ discover_packages() {
 	note "pnpm workspace with ${#WORKSPACE_DIRS[@]} publishable package(s): ${WORKSPACE_DIRS[*]}"
 }
 
-# The registry only turns an unauthenticated publish away at the very end of
+# The registry only turns an unauthenticated stage away at the very end of
 # the pipeline, once the version commit, the tag and the branch have already
 # been pushed — too late to retry without deleting them by hand. So the session
 # is opened here instead, before anything is written.
@@ -168,17 +167,6 @@ setup_authentication() {
 	fi
 
 	ensure_npm_login
-
-	if [[ "$DRY_RUN" == "true" ]]; then
-		NPM_OTP="<otp>"
-		return
-	fi
-
-	echo -n "Enter NPM_OTP: "
-	# -s keeps the one-time password off the screen; the newline the user
-	# typed is not echoed either, so it has to be printed here.
-	read -rs NPM_OTP
-	echo
 }
 
 # The section runs until the next release heading — or the link definitions,
@@ -504,7 +492,7 @@ update-changelog() {
 		git tag "${PKG_TAGS[$i]}"
 	done
 
-	# A rejected push has to stop the release: publishing and the GitHub
+	# A rejected push has to stop the release: staging and the GitHub
 	# release both come next, and both would point at an unpushed commit.
 	git push origin "$CURRENT_BRANCH"
 
@@ -518,9 +506,9 @@ update-changelog() {
 }
 
 # Reads a `tag` setting from .npmrc (project first, then the home directory),
-# if one is present. pnpm publish does not honour publishConfig.tag, so this is
-# the supported way to publish several differently suffixed prereleases under a
-# single dist-tag.
+# if one is present. `pnpm stage publish` does not honour publishConfig.tag, so
+# this is the supported way to publish several differently suffixed prereleases
+# under a single dist-tag.
 npmrc_tag() {
 	local rc value
 	for rc in "$PWD/.npmrc" "${HOME:-}/.npmrc"; do
@@ -541,7 +529,7 @@ npmrc_tag() {
 	return 1
 }
 
-publish_to_npm() {
+stage_on_npm() {
 	local npm_tag="latest"
 
 	if [[ -n "$PRERELEASE_FLAG" ]]; then
@@ -559,11 +547,15 @@ publish_to_npm() {
 	local dir
 	for dir in "${PKG_DIRS[@]}"; do
 		if [[ "${CI:-}" == "true" ]]; then
-			pnpm_in "$dir" publish --provenance --access public --tag "$npm_tag"
+			pnpm_in "$dir" stage publish --provenance --access public --tag "$npm_tag"
 		else
-			pnpm_in "$dir" publish --access public --tag "$npm_tag" --otp="$NPM_OTP"
+			pnpm_in "$dir" stage publish --access public --tag "$npm_tag"
 		fi
 	done
+
+	if [[ "$DRY_RUN" != "true" ]]; then
+		note "Packages staged on npm. Approve each staged version to make it publicly available."
+	fi
 }
 
 create_github_release() {
@@ -610,7 +602,7 @@ create_github_release() {
 
 show_help() {
 	cat << EOF
-📦 Bump, publish and release new version for npm package using pnpm
+📦 Bump, stage and release new version for npm package using pnpm
 
 USAGE:
     release-it [OPTIONS]
@@ -622,7 +614,7 @@ OPTIONS:
 
 REQUIREMENTS:
     • Node.js
-    • pnpm
+    • pnpm 12.14.0 or later
     • Git repository with proper remote setup
     • GitHub CLI (gh) must be installed: https://cli.github.com
 
@@ -654,19 +646,20 @@ PNPM WORKSPACES:
     In a pnpm workspace every package keeps its own CHANGELOG.md, and
     every non-private package with entries under [Unreleased] is
     released — with its own version, a “<name>@<version>” tag, its own
-    npm publish and GitHub release — in one commit. Packages with an
+    staged npm package and GitHub release — in one commit. Packages with an
     empty [Unreleased] section are left alone; the root never is
     released. The compare link in a package changelog names its tag:
     …/compare/<name>@1.2.3...HEAD
 
 AUTHENTICATION:
-    • Local: Checks the npm session, runs 'pnpm login' when there is none,
-      then asks for an OTP — all before anything is committed or pushed
-    • CI: Uses NPM trusted publishing
+    • Local: Checks the npm session and runs 'pnpm login' when there is none
+    • CI: Uses npm trusted publishing for staged publishing
+    • Approve each staged package with 'pnpm stage approve <stage-id>'; approval
+      requires an OTP
     • GitHub Release: Requires 'gh auth login' or GITHUB_TOKEN
 
 EXAMPLES:
-    release-it                          # Interactive OTP
+    release-it                          # Stage the package for approval
     release-it --dry-run                # Preview without releasing
     GITHUB_TOKEN=... release-it         # With GitHub release
     gh auth login && release-it         # GitHub auth via CLI
@@ -697,7 +690,7 @@ main() {
 	done
 
 	if [[ "$DRY_RUN" == "true" ]]; then
-		note "Dry run — nothing will be written, pushed or published."
+		note "Dry run — nothing will be written, pushed or staged."
 	fi
 
 	validate_release_branch
@@ -706,7 +699,7 @@ main() {
 	detect_version_type
 	create_version
 	update-changelog
-	publish_to_npm
+	stage_on_npm
 	create_github_release
 }
 

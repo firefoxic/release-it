@@ -48,5 +48,5 @@ test_rejects_a_dirty_working_tree() {
 	assert_failed
 	assert_contains "$RELEASE_ERR" "working tree is not clean"
 	assert_eq "1.2.3" "$(package_version)"
-	assert_eq "" "$(published_args)"
+	assert_eq "" "$(staged_args)"
 }
