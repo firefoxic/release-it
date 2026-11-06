@@ -7,6 +7,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com), and 
 
 ## [Unreleased]
 
+## [7.0.1] — 2026–11–06
+
 ### Fixed
 
 - Release pushes now pass `--no-verify`, so a repository's `pre-push` hook does not rerun checks that the release workflow has already completed.
@@ -174,7 +176,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com), and 
 
 - The basic functionality of the `update-changelog` CLI utility.
 
-[Unreleased]: https://github.com/firefoxic/release-it/compare/v7.0.0...HEAD
+[Unreleased]: https://github.com/firefoxic/release-it/compare/v7.0.1...HEAD
+[7.0.1]: https://github.com/firefoxic/release-it/compare/v7.0.0...v7.0.1
 [7.0.0]: https://github.com/firefoxic/release-it/compare/v6.1.1...v7.0.0
 [6.1.1]: https://github.com/firefoxic/release-it/compare/v6.1.0...v6.1.1
 [6.1.0]: https://github.com/firefoxic/release-it/compare/v6.0.2...v6.1.0
