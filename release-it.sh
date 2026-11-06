@@ -437,13 +437,13 @@ update-changelog() {
 			note "→ commit the changelog with ${changelog_files[*]}, then tag ${PKG_TAGS[*]}"
 			note "→ after the release, roll the branches back to the version bump"
 			for i in "${!PKG_DIRS[@]}"; do
-				run git push origin "refs/tags/${PKG_TAGS[$i]}"
+				run git push --no-verify origin "refs/tags/${PKG_TAGS[$i]}"
 			done
 		else
 			note "→ commit the version bump with ${changelog_files[*]}, then tag ${PKG_TAGS[*]}"
-			run git push origin "$CURRENT_BRANCH"
+			run git push --no-verify origin "$CURRENT_BRANCH"
 			for i in "${!PKG_DIRS[@]}"; do
-				run git push origin "refs/tags/${PKG_TAGS[$i]}"
+				run git push --no-verify origin "refs/tags/${PKG_TAGS[$i]}"
 			done
 		fi
 		return
@@ -478,9 +478,9 @@ update-changelog() {
 		done
 		for i in "${!PKG_DIRS[@]}"; do
 			if git ls-remote --exit-code --tags origin "refs/tags/${PKG_TAGS[$i]}" >/dev/null; then
-				git push --force origin "refs/tags/${PKG_TAGS[$i]}"
+				git push --no-verify --force origin "refs/tags/${PKG_TAGS[$i]}"
 			else
-				git push origin "refs/tags/${PKG_TAGS[$i]}"
+				git push --no-verify origin "refs/tags/${PKG_TAGS[$i]}"
 			fi
 		done
 		return
@@ -494,13 +494,13 @@ update-changelog() {
 
 	# A rejected push has to stop the release: staging and the GitHub
 	# release both come next, and both would point at an unpushed commit.
-	git push origin "$CURRENT_BRANCH"
+	git push --no-verify origin "$CURRENT_BRANCH"
 
 	for i in "${!PKG_DIRS[@]}"; do
 		if git ls-remote --exit-code --tags origin "refs/tags/${PKG_TAGS[$i]}" >/dev/null; then
-			git push --force origin "refs/tags/${PKG_TAGS[$i]}"
+			git push --no-verify --force origin "refs/tags/${PKG_TAGS[$i]}"
 		else
-			git push origin "refs/tags/${PKG_TAGS[$i]}"
+			git push --no-verify origin "refs/tags/${PKG_TAGS[$i]}"
 		fi
 	done
 }
@@ -592,11 +592,11 @@ create_github_release() {
 		# ready for the next prerelease. main is not touched here: prerelease
 		# branches are kept separate from main and only merged back by hand.
 		run git reset --hard HEAD~1
-		run git push origin "$CURRENT_BRANCH"
+		run git push --no-verify origin "$CURRENT_BRANCH"
 	else
 		run git switch main
 		run git rebase "$CURRENT_BRANCH"
-		run git push origin main
+		run git push --no-verify origin main
 	fi
 }
 

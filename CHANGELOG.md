@@ -7,6 +7,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com), and 
 
 ## [Unreleased]
 
+### Fixed
+
+- Release pushes now pass `--no-verify`, so a repository's `pre-push` hook does not rerun checks that the release workflow has already completed.
+
 ## [7.0.0] — 2026–10–31
 
 ### Changed
